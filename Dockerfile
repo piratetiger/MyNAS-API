@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /api
 COPY . .
 RUN dotnet publish -c Release -o output
 
@@ -10,6 +11,7 @@ RUN apt-get update \
         libx11-dev \
         ffmpeg \
      && rm -rf /var/lib/apt/lists/*
-COPY --from=build /output .
+COPY --from=build /api/output .
+
 ENTRYPOINT ["dotnet", "MyNAS.Site.dll"]
 EXPOSE 5000
