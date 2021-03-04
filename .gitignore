@@ -1,6 +1,6 @@
 **/bin
 **/obj
-**/MyNAS.db
+**/db_files/*.db
 MyNAS.Site/logs
 **/tmp
 **/wwwroot/storage/**/*.*
