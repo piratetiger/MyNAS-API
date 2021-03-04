@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/MyNAS.Site/bin/Debug/netcoreapp3.1/MyNAS.Site.dll",
+            "program": "${workspaceFolder}/MyNAS.Site/bin/Debug/net5.0/MyNAS.Site.dll",
             "args": [],
             "cwd": "${workspaceFolder}/MyNAS.Site",
             "stopAtEntry": false,
