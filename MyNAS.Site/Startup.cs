@@ -109,13 +109,6 @@ namespace MyNAS.Site
                 endpoints.MapControllerRoute(
                     name: "areaRoute",
                     pattern: "{area:exists}/{controller}/{action}");
-                foreach (var item in new[] { "login", "main", "images", "videos", "movies", "system" })
-                {
-                    endpoints.MapControllerRoute(
-                        name: item,
-                        pattern: item + "/{item?}",
-                        new { controller = "Home", action = "Index" });
-                }
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
