@@ -50,9 +50,11 @@ namespace MyNAS.Site.Areas.Api.Controllers
             }
         }
 
-        public AdminController(IWebHostEnvironment host)
+        public AdminController(IWebHostEnvironment host, IEnumerable<IAdminService> adminServices, IEnumerable<IUserService> userServices)
         {
             _host = host;
+            _adminServices = new ServiceCollection<IAdminService>(adminServices);
+            _userServices = new ServiceCollection<IUserService>(userServices);
         }
 
         [HttpPost("initDB")]
