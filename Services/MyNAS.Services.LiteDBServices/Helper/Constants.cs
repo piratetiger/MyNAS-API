@@ -1,4 +1,4 @@
-namespace MyNAS.Services.LiteDBServices.Helper
+namespace MyNAS.Services.LiteDbServices.Helper
 {
     internal static class Constants
     {

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using MyNAS.Model;
 using MyNAS.Model.User;
 using MyNAS.Services.Abstraction;
-using MyNAS.Services.LiteDBServices.Helper;
+using MyNAS.Services.LiteDbServices.Helper;
 
-namespace MyNAS.Services.LiteDBServices
+namespace MyNAS.Services.LiteDbServices
 {
     public class AdminService : LiteDBBaseService<IAdminService>, IAdminService
     {

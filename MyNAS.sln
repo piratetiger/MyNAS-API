@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{14
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNAS.Services.Abstraction", "Services\MyNAS.Services.Abstraction\MyNAS.Services.Abstraction.csproj", "{BC6F799F-630A-4708-802A-DA29C1D656F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNAS.Services.LiteDBServices", "Services\MyNAS.Services.LiteDBServices\MyNAS.Services.LiteDBServices.csproj", "{E69D4D8D-4B52-4207-B3AB-C82A564142B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNAS.Services.LiteDbServices", "Services\MyNAS.Services.LiteDbServices\MyNAS.Services.LiteDbServices.csproj", "{E69D4D8D-4B52-4207-B3AB-C82A564142B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

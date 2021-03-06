@@ -1,7 +1,7 @@
 using MyNAS.Services.Abstraction;
-using MyNAS.Services.LiteDBServices.Helper;
+using MyNAS.Services.LiteDbServices.Helper;
 
-namespace MyNAS.Services.LiteDBServices
+namespace MyNAS.Services.LiteDbServices
 {
     public abstract class LiteDBBaseService<T> : DefaultService<T> where T : IServiceBase
     {

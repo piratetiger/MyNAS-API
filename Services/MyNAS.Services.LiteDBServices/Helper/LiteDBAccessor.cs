@@ -4,7 +4,7 @@ using System.Linq;
 using LiteDB;
 using MyNAS.Model;
 
-namespace MyNAS.Services.LiteDBServices.Helper
+namespace MyNAS.Services.LiteDbServices.Helper
 {
     public class LiteDBAccessor
     {

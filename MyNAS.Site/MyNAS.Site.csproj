@@ -20,7 +20,7 @@
     <ProjectReference Include="..\MyNAS.Model\MyNAS.Model.csproj" />
     <ProjectReference Include="..\MyNAS.Service\MyNAS.Service.csproj" />
     <ProjectReference Include="..\MyNAS.Util\MyNAS.Util.csproj" />
-    <ProjectReference Include="..\Services\MyNAS.Services.LiteDBServices\MyNAS.Services.LiteDBServices.csproj" />
+    <ProjectReference Include="..\Services\MyNAS.Services.LiteDbServices\MyNAS.Services.LiteDbServices.csproj" />
   </ItemGroup>
 
 </Project>

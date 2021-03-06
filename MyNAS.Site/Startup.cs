@@ -33,7 +33,7 @@ namespace MyNAS.Site
             services.AddSingleton<ITorrentDownloadService, TorrentDownloadService>();
             services.AddHostedService<TorrentDownloadService>();
 
-            services.AddLiteDBServices();
+            services.AddLiteDbServices();
 
             services.AddControllers(options =>
                 {

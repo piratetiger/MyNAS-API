@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using MyNAS.Services.Abstraction;
-using MyNAS.Services.LiteDBServices;
+using MyNAS.Services.LiteDbServices;
 
 namespace MyNAS.Site
 {
-    public static class LiteDBServicesExt
+    public static class LiteDbServicesExt
     {
-        public static void AddLiteDBServices(this IServiceCollection services)
+        public static void AddLiteDbServices(this IServiceCollection services)
         {
             var adminService = new AdminService();
             adminService.InitDB().GetAwaiter().GetResult();
