@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.User;
 using MyNAS.Model.Videos;
-using MyNAS.Service;
-using MyNAS.Site;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.Helper;
 using MyNAS.Util;
 
@@ -24,30 +24,38 @@ namespace MyNAS.Site.Areas.Api.Controllers
     public class VideosController : ControllerBase
     {
         private readonly IWebHostEnvironment _host;
-
-        protected VideosService VideosService
+        private readonly ServiceCollection<IVideosService> _videosServices;
+        private IVideosService _videosService;
+        protected IVideosService VideosService
         {
             get
             {
-                return new VideosService();
+                if (_videosService == null)
+                {
+                    _videosServices.FilterOrder = this.GetServiceFilterOrder();
+                    _videosService = _videosServices.First();
+                }
+
+                return _videosService;
             }
         }
 
-        public VideosController(IWebHostEnvironment host)
+        public VideosController(IWebHostEnvironment host, IEnumerable<IVideosService> videosServices)
         {
             _host = host;
+            _videosServices = new ServiceCollection<IVideosService>(videosServices);
         }
 
         [HttpPost("list")]
-        public object GetVideoList(GetListRequest req)
+        public async Task<object> GetVideoList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = VideosService.GetList(req);
+            var list = await VideosService.GetList(req);
             if ((int)user.Role <= (int)UserRole.User)
             {
-                list = list.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
             }
-            return new DataResult<List<VideoModel>>(list);
+            return list;
         }
 
         [HttpGet("")]
@@ -79,7 +87,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "UserBase")]
         [RequestFormLimits(MultipartBodyLengthLimit = 419430400)]
         [RequestSizeLimit(419430400)]
-        public object UploadVideo(IEnumerable<IFormFile> files, [FromForm] string date, [FromForm] bool isPublic)
+        public async Task<object> UploadVideo(IEnumerable<IFormFile> files, [FromForm] string date, [FromForm] bool isPublic)
         {
             var videoList = new List<VideoModel>();
             foreach (var file in files)
@@ -110,29 +118,29 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 catch { }
             }
 
-            return new MessageDataResult("Upload Video", VideosService.SaveItems(videoList));
+            return new MessageDataResult(await VideosService.SaveItems(videoList), "Upload Video");
         }
 
         [HttpPost("updateDate")]
         [Authorize(Policy = "DataAdminBase")]
-        public object UpdateVideoDate(UpdateRequest req)
+        public async Task<object> UpdateVideoDate(UpdateRequest req)
         {
-            var videoList = VideosService.GetItems(req.Names);
+            var videoList = await VideosService.GetItems(req.Names);
 
-            if (req.NewModel != null)
+            if (req.NewModel != null && videoList.First != null)
             {
-                foreach (var item in videoList)
+                foreach (var item in videoList.Data)
                 {
                     item.Date = req.NewModel.Date.Date;
                 }
             }
 
-            return new MessageDataResult("Update Video", VideosService.UpdateItems(videoList));
+            return new MessageDataResult(await VideosService.UpdateItems(videoList.Data), "Update Video");
         }
 
         [HttpPost("delete")]
         [Authorize(Policy = "DataAdminBase")]
-        public object DeleteVideo(DeleteRequest req)
+        public async Task<object> DeleteVideo(DeleteRequest req)
         {
             foreach (var name in req.Names)
             {
@@ -148,7 +156,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 }
             }
 
-            return new MessageDataResult("Delete Video", VideosService.DeleteItems(req.Names));
+            return new MessageDataResult(await VideosService.DeleteItems(req.Names),"Delete Video");
         }
     }
 }

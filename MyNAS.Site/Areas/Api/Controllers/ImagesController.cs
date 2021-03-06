@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.Images;
 using MyNAS.Model.User;
-using MyNAS.Service;
-using MyNAS.Site;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.Helper;
 using MyNAS.Util;
 
@@ -24,30 +24,38 @@ namespace MyNAS.Site.Areas.Api.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly IWebHostEnvironment _host;
-
-        protected ImagesService ImagesService
+        private readonly ServiceCollection<IImagesService> _imagesServices;
+        private IImagesService _imagesService;
+        protected IImagesService ImagesService
         {
             get
             {
-                return new ImagesService();
+                if (_imagesService == null)
+                {
+                    _imagesServices.FilterOrder = this.GetServiceFilterOrder();
+                    _imagesService = _imagesServices.First();
+                }
+
+                return _imagesService;
             }
         }
 
-        public ImagesController(IWebHostEnvironment host)
+        public ImagesController(IWebHostEnvironment host, IEnumerable<IImagesService> imagesServices)
         {
             _host = host;
+            _imagesServices = new ServiceCollection<IImagesService>(imagesServices);
         }
 
         [HttpPost("list")]
-        public object GetImageList(GetListRequest req)
+        public async Task<object> GetImageList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = ImagesService.GetList(req);
+            var list = await ImagesService.GetList(req);
             if ((int)user.Role <= (int)UserRole.User)
             {
-                list = list.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
             }
-            return new DataResult<List<ImageModel>>(list);
+            return list;
         }
 
         [HttpGet("")]
@@ -83,7 +91,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "UserBase")]
         [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         [RequestSizeLimit(104857600)]
-        public object UploadImage(IEnumerable<IFormFile> files, [FromForm] string date, [FromForm] bool isPublic)
+        public async Task<object> UploadImage(IEnumerable<IFormFile> files, [FromForm] string date, [FromForm] bool isPublic)
         {
             var imageList = new List<ImageModel>();
             foreach (var file in files)
@@ -114,29 +122,29 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 catch { }
             }
 
-            return new MessageDataResult("Upload Image", ImagesService.SaveItems(imageList));
+            return new MessageDataResult(await ImagesService.SaveItems(imageList), "Upload Image");
         }
 
         [HttpPost("updateDate")]
         [Authorize(Policy = "DataAdminBase")]
-        public object UpdateImageDate(UpdateRequest req)
+        public async Task<object> UpdateImageDate(UpdateRequest req)
         {
-            var imageList = ImagesService.GetItems(req.Names);
+            var imageList = await ImagesService.GetItems(req.Names);
 
-            if (req.NewModel != null)
+            if (req.NewModel != null && imageList.First != null)
             {
-                foreach (var item in imageList)
+                foreach (var item in imageList.Data)
                 {
                     item.Date = req.NewModel.Date.Date;
                 }
             }
 
-            return new MessageDataResult("Update Image", ImagesService.UpdateItems(imageList));
+            return new MessageDataResult(await ImagesService.UpdateItems(imageList.Data), "Update Image");
         }
 
         [HttpPost("delete")]
         [Authorize(Policy = "DataAdminBase")]
-        public object DeleteImage(DeleteRequest req)
+        public async Task<object> DeleteImage(DeleteRequest req)
         {
             foreach (var name in req.Names)
             {
@@ -152,7 +160,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 }
             }
 
-            return new MessageDataResult("Delete Video", ImagesService.DeleteItems(req.Names));
+            return new MessageDataResult(await ImagesService.DeleteItems(req.Names), "Delete Video");
         }
     }
 }

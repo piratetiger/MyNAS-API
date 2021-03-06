@@ -4,10 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteDB" Version="4.1.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\MyNAS.Model\MyNAS.Model.csproj" />
+    <ProjectReference Include="..\..\MyNAS.Model\MyNAS.Model.csproj" />
   </ItemGroup>
 </Project>

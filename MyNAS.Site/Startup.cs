@@ -33,6 +33,8 @@ namespace MyNAS.Site
             services.AddSingleton<ITorrentDownloadService, TorrentDownloadService>();
             services.AddHostedService<TorrentDownloadService>();
 
+            services.AddLiteDBServices();
+
             services.AddControllers(options =>
                 {
                     options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));

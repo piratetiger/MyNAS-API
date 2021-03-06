@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.Files;
 using MyNAS.Model.User;
-using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.BackendServices;
 using MyNAS.Site.Helper;
 
@@ -25,37 +26,47 @@ namespace MyNAS.Site.Areas.Api.Controllers
         private readonly IWebHostEnvironment _host;
         private readonly ITorrentDownloadService _btService;
 
-        protected FilesService FilesService
+        private readonly ServiceCollection<IFilesService> _filesServices;
+        private IFilesService _filesService;
+        protected IFilesService FilesService
         {
             get
             {
-                return new FilesService();
+                if (_filesService == null)
+                {
+                    _filesServices.FilterOrder = this.GetServiceFilterOrder();
+                    _filesService = _filesServices.First();
+                }
+
+                return _filesService;
             }
         }
 
-        public FilesController(IWebHostEnvironment host, ITorrentDownloadService btService)
+        public FilesController(IWebHostEnvironment host, ITorrentDownloadService btService, IEnumerable<IFilesService> filesServices)
         {
             _host = host;
+            _filesServices = new ServiceCollection<IFilesService>(filesServices);
             _btService = btService;
         }
 
         [HttpPost("list")]
-        public object GetFilesList(GetListRequest req)
+        public async Task<object> GetFilesList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = FilesService.GetList(req).OrderByDescending(f => f.IsFolder).ToList();
+            var dataResult = await FilesService.GetList(req);
+            dataResult.Data = dataResult.Data.OrderByDescending(f => f.IsFolder).ToList();
             if ((int)user.Role <= (int)UserRole.User)
             {
-                list = list.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                dataResult.Data = dataResult.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
             }
-            return new DataResult<List<FileModel>>(list);
+            return dataResult;
         }
 
         [HttpGet("")]
         [AllowAnonymous]
-        public ActionResult GetFile(string name)
+        public async Task<ActionResult> GetFile(string name)
         {
-            var item = FilesService.GetItem(name);
+            var item = (await FilesService.GetItem(name)).First;
             var path = string.Empty;
             if (item != null)
             {
@@ -69,7 +80,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "UserBase")]
         [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         [RequestSizeLimit(104857600)]
-        public object UploadFile(IEnumerable<IFormFile> files, [FromForm] string cate, [FromForm] bool isPublic)
+        public async Task<object> UploadFile(IEnumerable<IFormFile> files, [FromForm] string cate, [FromForm] bool isPublic)
         {
             var fileList = new List<FileModel>();
             var date = DateTime.Now;
@@ -80,7 +91,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                     var pathName = string.Empty;
                     if (!string.IsNullOrEmpty(cate))
                     {
-                        var cateModel = FilesService.GetItem(cate);
+                        var cateModel = (await FilesService.GetItem(cate)).First;
                         if (cateModel == null)
                         {
                             continue;
@@ -117,12 +128,12 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 catch { }
             }
 
-            return new MessageDataResult("Upload File", FilesService.SaveItems(fileList));
+            return new MessageDataResult(await FilesService.SaveItems(fileList), "Upload File");
         }
 
         [HttpPost("folder/add")]
         [Authorize(Policy = "UserBase")]
-        public object CreateFolder(CreateFolderRequest req)
+        public async Task<object> CreateFolder(CreateFolderRequest req)
         {
             var date = DateTime.Now;
             var success = true;
@@ -131,7 +142,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 var pathName = string.Empty;
                 if (!string.IsNullOrEmpty(req.Cate))
                 {
-                    var cateModel = FilesService.GetItem(req.Cate);
+                    var cateModel = (await FilesService.GetItem(req.Cate)).First;
                     if (cateModel == null)
                     {
                         throw new ArgumentException();
@@ -157,14 +168,14 @@ namespace MyNAS.Site.Areas.Api.Controllers
                     IsFolder = true
                 };
 
-                success = FilesService.SaveItem(fileModel);
+                success = (await FilesService.SaveItem(fileModel)).First;
             }
             catch
             {
                 success = false;
             }
 
-            return new MessageDataResult("Create Folder", success);
+            return new MessageDataResult(nameof(FilesController), success, "Create Folder");
         }
 
         [HttpPost("addbttask")]
@@ -188,13 +199,13 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 success = false;
             }
 
-            return new MessageDataResult("Add Bt Task", success);
+            return new MessageDataResult(nameof(FilesController), success, "Add Bt Task");
         }
 
-        [HttpPost("status")]
-        public object GetStatus()
-        {
-            return new DataResult<double[]>(_btService.Status());
-        }
+        // [HttpPost("status")]
+        // public object GetStatus()
+        // {
+        //     return new DataResult<double[]>(_btService.Status());
+        // }
     }
 }

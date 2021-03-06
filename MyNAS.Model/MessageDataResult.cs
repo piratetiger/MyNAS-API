@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
 namespace MyNAS.Model
 {
-    public class MessageDataResult<T> : DataResult<T>
+    public class MessageDataResult : DataResult<bool>
     {
         private string _action;
-        private bool _actionResult;
 
         public bool MessageResult
         {
@@ -17,7 +19,16 @@ namespace MyNAS.Model
         {
             get
             {
-                return _actionResult ? "Success" : "Error";
+                return ActionResult ? "Success" : "Error";
+            }
+        }
+
+        [JsonIgnore]
+        public bool ActionResult
+        {
+            get
+            {
+                return Status == DataStatus.Success && First;
             }
         }
 
@@ -25,21 +36,18 @@ namespace MyNAS.Model
         {
             get
             {
-                return $"{_action} {(_actionResult ? "Success" : "Failed")}";
+                return $"{_action} {(ActionResult ? "Success" : "Failed")}";
             }
         }
 
-        public MessageDataResult(string action, bool actionResult, T data) : base(data)
+        public MessageDataResult(DataResult<bool> dataResult, string action) : base(dataResult.Source, dataResult.Data)
         {
             _action = action;
-            _actionResult = actionResult;
         }
-    }
 
-    public class MessageDataResult : MessageDataResult<bool>
-    {
-        public MessageDataResult(string action, bool actionResult) : base(action, actionResult, actionResult)
+        public MessageDataResult(string source, bool result, string action) : base(source, new List<bool>() { result })
         {
+            _action = action;
         }
     }
 }

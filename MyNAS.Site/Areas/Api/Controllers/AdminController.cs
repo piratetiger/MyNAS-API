@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.User;
-using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 
 namespace MyNAS.Site.Areas.Api.Controllers
 {
@@ -17,19 +18,35 @@ namespace MyNAS.Site.Areas.Api.Controllers
     {
         private readonly IWebHostEnvironment _host;
 
-        protected AdminService AdminService
+        private readonly ServiceCollection<IAdminService> _adminServices;
+        private IAdminService _adminService;
+        protected IAdminService AdminService
         {
             get
             {
-                return new AdminService();
+                if (_adminService == null)
+                {
+                    _adminServices.FilterOrder = this.GetServiceFilterOrder();
+                    _adminService = _adminServices.First();
+                }
+
+                return _adminService;
             }
         }
 
-        protected UserService UserService
+        private readonly ServiceCollection<IUserService> _userServices;
+        private IUserService _userService;
+        protected IUserService UserService
         {
             get
             {
-                return new UserService();
+                if (_userService == null)
+                {
+                    _userServices.FilterOrder = this.GetServiceFilterOrder();
+                    _userService = _userServices.First();
+                }
+
+                return _userService;
             }
         }
 
@@ -40,9 +57,9 @@ namespace MyNAS.Site.Areas.Api.Controllers
 
         [HttpPost("initDB")]
         [AllowAnonymous]
-        public object InitDB()
+        public async Task<object> InitDB()
         {
-            return new MessageDataResult("Initialize database", AdminService.InitDB());
+            return new MessageDataResult(await AdminService.InitDB(), "Initialize database");
         }
 
         [HttpPost("prune")]
@@ -66,27 +83,27 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 System.IO.File.Delete(file);
             }
 
-            return new MessageDataResult("Prune", true);
+            return new MessageDataResult(nameof(AdminController), true, "Prune");
         }
 
         [HttpPost("users")]
-        public object GetUserList()
+        public async Task<object> GetUserList()
         {
-            return new DataResult<List<UserModel>>(UserService.GetList());
+            return await UserService.GetList();
         }
 
         [HttpPost("users/add")]
-        public object AddUser(UserRequest req)
+        public async Task<object> AddUser(UserRequest req)
         {
             if (req.User != null)
             {
                 req.User.Password = req.Password;
             }
-            return new MessageDataResult("Create User", UserService.SaveItem(req.User));
+            return new MessageDataResult(await UserService.SaveItem(req.User), "Create User");
         }
 
         [HttpPost("users/update")]
-        public object UpdateUser(UserRequest req)
+        public async Task<object> UpdateUser(UserRequest req)
         {
             if (req.User != null)
             {
@@ -95,13 +112,13 @@ namespace MyNAS.Site.Areas.Api.Controllers
                     req.User.Password = req.Password;
                 }
             }
-            return new MessageDataResult("Update User", UserService.UpdateItem(req.User));
+            return new MessageDataResult(await UserService.UpdateItem(req.User), "Update User");
         }
 
         [HttpPost("users/delete")]
-        public object DeleteUser(UserRequest req)
+        public async Task<object> DeleteUser(UserRequest req)
         {
-            return new MessageDataResult("Delete User", UserService.DeleteItem(req.User));
+            return new MessageDataResult(await UserService.DeleteItem(req.User), "Delete User");
         }
     }
 }
