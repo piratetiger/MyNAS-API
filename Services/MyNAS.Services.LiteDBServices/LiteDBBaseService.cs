@@ -7,12 +7,13 @@ namespace MyNAS.Services.LiteDbServices
     {
         public override string Name { get; } = Constants.Service_Name;
         public override bool CacheService { get; } = false;
+        public string ConnectionString { get; set; } = Constants.DB_FILE_NAME;
 
         protected LiteDBAccessor DBAccessor
         {
             get
             {
-                return new LiteDBAccessor();
+                return new LiteDBAccessor(ConnectionString);
             }
         }
     }

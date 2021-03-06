@@ -8,18 +8,16 @@ namespace MyNAS.Services.LiteDbServices.Helper
 {
     public class LiteDBAccessor
     {
-        public const string DB_FILE_NAME = "db_files/MyNAS.db";
+        private string _connectionString;
 
-        private string DBFile { get; set; }
-
-        public LiteDBAccessor(string dbFile = DB_FILE_NAME)
+        public LiteDBAccessor(string connectionString)
         {
-            DBFile = dbFile;
+            _connectionString = connectionString;
         }
 
         public List<T> GetAll<T>(string name) where T : IKeyNameModel
         {
-            using (var db = new LiteDatabase(DBFile))
+            using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
                 return collection.FindAll().ToList();
@@ -28,7 +26,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
         public List<T> SearchItems<T>(string name, IDateFilterRequest req) where T : IDateModel
         {
-            using (var db = new LiteDatabase(DBFile))
+            using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
                 return collection.Find(i => ((i.Date >= req.StartDate) && (i.Date <= req.EndDate.AddDays(1))) &&
@@ -40,7 +38,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
         public List<T> SearchItems<T>(string name, IOwnerFilterRequest req) where T : IOwnerModel
         {
-            using (var db = new LiteDatabase(DBFile))
+            using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
                 if (req.Owner == null || !req.Owner.Any())
@@ -71,7 +69,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
                 return SearchItems<T>(name, (IOwnerFilterRequest)req);
             }
 
-            using (var db = new LiteDatabase(DBFile))
+            using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
                 return collection.Find(i => ((i.Date >= req.StartDate) && (i.Date <= req.EndDate.AddDays(1))) &&
@@ -91,7 +89,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     var checkItem = collection.FindOne(i => i.KeyName == item.KeyName);
@@ -119,7 +117,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     var checkItem = collection.FindOne(i => items.Select(ii => ii.KeyName).Contains(i.KeyName));
@@ -147,7 +145,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     var record = collection.Delete(i => i.KeyName == item.KeyName);
@@ -169,7 +167,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     var deleteKeys = items.Select(i => i.KeyName);
@@ -192,7 +190,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     if (item.Id == 0)
@@ -226,7 +224,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
 
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     var checkCount = collection.LongCount(i => items.Select(ii => ii.KeyName).Contains(i.KeyName));
@@ -252,7 +250,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     return collection.FindOne(i => i.KeyName == keyName);
@@ -272,7 +270,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
             try
             {
-                using (var db = new LiteDatabase(DBFile))
+                using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
                     return collection.Find(i => keyNames.Contains(i.KeyName)).ToList();
