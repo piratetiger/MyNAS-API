@@ -120,5 +120,37 @@ namespace MyNAS.Services.FileSystemServices
 
             return result;
         }
+
+        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        {
+            var success = true;
+
+            foreach (var name in names)
+            {
+                var path = Path.Combine(Image_Path, name);
+                var thumbPath = Path.Combine(Image_Thumb_Path, name);
+
+                try
+                {
+                    File.Delete(path);
+                    File.Delete(thumbPath);
+                }
+                catch
+                {
+                    success = false;
+                }
+            }
+            var result = new DataResult<bool>(Name, new List<bool>() { success });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.DeleteItems(names);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
+        }
     }
 }

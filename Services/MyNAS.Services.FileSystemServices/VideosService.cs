@@ -72,7 +72,7 @@ namespace MyNAS.Services.FileSystemServices
             foreach (var item in items)
             {
                 var path = Path.Combine(Video_Path, item.FileName);
-                var thumbPath = Path.Combine(Video_Thumb_Path, item.FileName);
+                var thumbPath = Path.ChangeExtension(Path.Combine(Video_Thumb_Path, item.FileName), ".jpg");
 
                 try
                 {
@@ -114,9 +114,41 @@ namespace MyNAS.Services.FileSystemServices
 
         public async Task<DataResult<byte[]>> GetItemThumbContents(string name)
         {
-            var path = Path.Combine(Video_Thumb_Path, name);
+            var path = Path.ChangeExtension(Path.Combine(Video_Thumb_Path, name), ".jpg");
             var bytes = await File.ReadAllBytesAsync(path);
             var result = new DataResult<byte[]>(Name, new List<byte[]>() { bytes });
+
+            return result;
+        }
+
+        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        {
+            var success = true;
+
+            foreach (var name in names)
+            {
+                var path = Path.Combine(Video_Path, name);
+                var thumbPath = Path.ChangeExtension(Path.Combine(Video_Thumb_Path, name), ".jpg");
+
+                try
+                {
+                    File.Delete(path);
+                    File.Delete(thumbPath);
+                }
+                catch
+                {
+                    success = false;
+                }
+            }
+            var result = new DataResult<bool>(Name, new List<bool>() { success });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.DeleteItems(names);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
 
             return result;
         }

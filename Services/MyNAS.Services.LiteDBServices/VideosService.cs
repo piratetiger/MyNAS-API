@@ -48,16 +48,29 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public Task<DataResult<bool>> DeleteItems(IList<string> names)
+        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
         {
+            DataResult<bool> result = null;
             if (names == null)
             {
-                return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { false }));
+                result = new DataResult<bool>(Name, new List<bool>() { false });
+            }
+            else
+            {
+                var deleteItems = names.Select(n => new VideoInfoModel { FileName = n }).ToList();
+                var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
+                result = new DataResult<bool>(Name, new List<bool> { deleteResult });
             }
 
-            var deleteItems = names.Select(n => new VideoModel { FileName = n }).ToList();
-            var result = DbAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.DeleteItems(names);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
         public Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
