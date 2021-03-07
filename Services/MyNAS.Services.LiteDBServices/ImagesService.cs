@@ -16,16 +16,36 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
-        public Task<DataResult<bool>> SaveItem(ImageModel item)
+        public async Task<DataResult<bool>> SaveItem(ImageModel item)
         {
-            var result = DbAccessor.SaveItem(Constants.TABLE_IMAGES, item as ImageInfoModel);
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
+            var saveResult = DbAccessor.SaveItem(Constants.TABLE_IMAGES, item as ImageInfoModel);
+            var result = new DataResult<bool>(Name, new List<bool> { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItem(item);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
-        public Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
+        public async Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
         {
-            var result = DbAccessor.SaveItems(Constants.TABLE_IMAGES, items.Cast<ImageInfoModel>().ToList());
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
+            var saveResult = DbAccessor.SaveItems(Constants.TABLE_IMAGES, items.Cast<ImageInfoModel>().ToList());
+            var result = new DataResult<bool>(Name, new List<bool> { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItems(items);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
         public Task<DataResult<bool>> DeleteItems(IList<string> names)

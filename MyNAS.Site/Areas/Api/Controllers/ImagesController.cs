@@ -60,31 +60,19 @@ namespace MyNAS.Site.Areas.Api.Controllers
 
         [HttpGet("")]
         [AllowAnonymous]
-        public ActionResult GetImage(string name, bool thumb = true)
+        public async Task<IActionResult> GetImage(string name, bool thumb = true)
         {
-            var path = Path.Combine(_host.WebRootPath, "storage/images", name);
-
+            byte[] bytes = null;
             if (thumb)
             {
-                var thumbPath = Path.Combine(_host.WebRootPath, "tmp", name);
-                var thumbFile = new FileInfo(thumbPath);
-                if (!thumbFile.Exists || thumbFile.Length == 0)
-                {
-                    using (var fileStream = System.IO.File.Create(thumbPath))
-                    {
-                        using (var thumbStream = ImageUtil.CreateThumbnail(path))
-                        {
-                            thumbStream.Seek(0, SeekOrigin.Begin);
-                            thumbStream.CopyTo(fileStream);
-                        }
-                    }
-                }
-                return PhysicalFile(thumbPath, "image/jpeg");
+                bytes = (await ImagesService.GetItemThumbContents(name)).First;
             }
             else
             {
-                return PhysicalFile(path, "image/jpeg");
+                bytes = (await ImagesService.GetItemContents(name)).First;
             }
+
+            return File(bytes, "image/jpeg");
         }
 
         [HttpPost("add")]
@@ -100,15 +88,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 {
                     var imageDate = string.IsNullOrEmpty(date) ? DateTime.Now : DateTime.ParseExact(date, "yyyyMMdd", null);
                     var fileName = $"{imageDate.ToString("yyyyMMdd")}_{Guid.NewGuid().ToString()}.jpg";
-                    var path = Path.Combine(_host.WebRootPath, "storage/images", fileName);
-                    using (var fileStream = System.IO.File.Create(path))
-                    {
-                        using (var requestFileStream = file.OpenReadStream())
-                        {
-                            requestFileStream.Seek(0, SeekOrigin.Begin);
-                            requestFileStream.CopyTo(fileStream);
-                        }
-                    }
 
                     var image = new ImageModel()
                     {
@@ -117,6 +96,19 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         IsPublic = isPublic,
                         Owner = User.Identity.Name
                     };
+
+                    using (var stream = file.OpenReadStream())
+                    {
+                        image.Contents = new byte[stream.Length];
+                        await stream.ReadAsync(image.Contents, 0, image.Contents.Length);
+
+                        stream.Seek(0, SeekOrigin.Begin);
+                        using (var thumbStream = ImageUtil.CreateThumbnail(stream))
+                        {
+                            image.ThumbContents = new byte[thumbStream.Length];
+                            await thumbStream.ReadAsync(image.ThumbContents, 0, image.ThumbContents.Length);
+                        }
+                    }
                     imageList.Add(image);
                 }
                 catch { }

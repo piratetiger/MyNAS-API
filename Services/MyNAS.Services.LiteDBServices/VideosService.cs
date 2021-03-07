@@ -16,16 +16,36 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
 
-        public Task<DataResult<bool>> SaveItem(VideoModel item)
+        public async Task<DataResult<bool>> SaveItem(VideoModel item)
         {
-            var result = DbAccessor.SaveItem(Constants.TABLE_VIDEOS, item as VideoInfoModel);
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
+            var saveResult = DbAccessor.SaveItem(Constants.TABLE_VIDEOS, item as VideoInfoModel);
+            var result = new DataResult<bool>(Name, new List<bool> { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItem(item);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
-        public Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
+        public async Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
         {
-            var result = DbAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Cast<VideoInfoModel>().ToList());
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
+            var saveResult = DbAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Cast<VideoInfoModel>().ToList());
+            var result = new DataResult<bool>(Name, new List<bool> { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItems(items);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
         public Task<DataResult<bool>> DeleteItems(IList<string> names)

@@ -60,26 +60,17 @@ namespace MyNAS.Site.Areas.Api.Controllers
 
         [HttpGet("")]
         [AllowAnonymous]
-        public ActionResult GetVideo(string name, bool thumb = true)
+        public async Task<IActionResult> GetVideo(string name, bool thumb = true)
         {
-            var path = Path.Combine(_host.WebRootPath, "storage/videos", name);
             if (thumb)
             {
-                var thumbPath = Path.Combine(_host.WebRootPath, "tmp", name) + ".jpg";
-                if (System.IO.File.Exists(thumbPath))
-                {
-                    return PhysicalFile(thumbPath, "image/jpeg");
-                }
-                else
-                {
-                    var defaultThumb = Path.Combine(_host.WebRootPath, "MP4thumb.jpg");
-                    VideoUtil.CreateThumbnail(path, thumbPath);
-                    return PhysicalFile(defaultThumb, "image/jpeg");
-                }
+                var bytes = (await VideosService.GetItemThumbContents(name)).First;
+                return File(bytes, "image/jpeg");
             }
             else
             {
-                return PhysicalFile(path, "video/mp4");
+                var bytes = (await VideosService.GetItemContents(name)).First;
+                return File(bytes, "video/mp4");
             }
         }
 
@@ -96,15 +87,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 {
                     var videoDate = string.IsNullOrEmpty(date) ? DateTime.Now : DateTime.ParseExact(date, "yyyyMMdd", null);
                     var fileName = $"{videoDate.ToString("yyyyMMdd")}_{Guid.NewGuid().ToString()}.mp4";
-                    var path = Path.Combine(_host.WebRootPath, "storage/videos", fileName);
-                    using (var fileStream = System.IO.File.Create(path))
-                    {
-                        using (var requestFileStream = file.OpenReadStream())
-                        {
-                            requestFileStream.Seek(0, SeekOrigin.Begin);
-                            requestFileStream.CopyTo(fileStream);
-                        }
-                    }
 
                     var video = new VideoModel()
                     {
@@ -113,6 +95,16 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         IsPublic = isPublic,
                         Owner = User.Identity.Name
                     };
+
+                    using (var stream = file.OpenReadStream())
+                    {
+                        video.Contents = new byte[stream.Length];
+                        await stream.ReadAsync(video.Contents, 0, video.Contents.Length);
+
+                        stream.Seek(0, SeekOrigin.Begin);
+
+                        video.ThumbContents = await VideoUtil.CreateThumbnail(stream);
+                    }
                     videoList.Add(video);
                 }
                 catch { }
@@ -156,7 +148,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 }
             }
 
-            return new MessageDataResult(await VideosService.DeleteItems(req.Names),"Delete Video");
+            return new MessageDataResult(await VideosService.DeleteItems(req.Names), "Delete Video");
         }
     }
 }

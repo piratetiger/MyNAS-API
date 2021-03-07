@@ -9,6 +9,7 @@ namespace MyNAS.Site
         public static void AddFileSystemServices(this IServiceCollection services)
         {
             services.AddScoped<IImagesService, ImagesService>();
+            services.AddScoped<IVideosService, VideosService>();
         }
     }
 }

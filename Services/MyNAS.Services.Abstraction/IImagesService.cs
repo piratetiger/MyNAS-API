@@ -49,5 +49,19 @@ namespace MyNAS.Services.Abstraction
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.GetInfoList(names);
         }
+
+        Task<DataResult<byte[]>> GetItemContents(string name)
+        {
+            var result = new DataResult<byte[]>(Name, null, Constants.End_Of_Chain);
+            var next = Services.Next(this);
+            return next == null ? Task.FromResult(result) : next.GetItemContents(name);
+        }
+
+        Task<DataResult<byte[]>> GetItemThumbContents(string name)
+        {
+            var result = new DataResult<byte[]>(Name, null, Constants.End_Of_Chain);
+            var next = Services.Next(this);
+            return next == null ? Task.FromResult(result) : next.GetItemThumbContents(name);
+        }
     }
 }
