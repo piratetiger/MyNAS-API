@@ -15,6 +15,7 @@ namespace MyNAS.Site
             services.AddScoped<IImagesService, ImagesService>();
             services.AddScoped<IVideosService, VideoService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILogsService, LogsService>();
         }
     }
 }
