@@ -58,7 +58,7 @@ namespace MyNAS.Services.LiteDbServices
             else
             {
                 var deleteItems = names.Select(n => new VideoInfoModel { FileName = n }).ToList();
-                var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
+                var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
                 result = new DataResult<bool>(Name, new List<bool> { deleteResult });
             }
 

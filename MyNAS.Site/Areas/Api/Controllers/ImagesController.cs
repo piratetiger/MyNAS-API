@@ -138,20 +138,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "DataAdminBase")]
         public async Task<object> DeleteImage(DeleteRequest req)
         {
-            foreach (var name in req.Names)
-            {
-                var path = Path.Combine(_host.WebRootPath, "storage/images", name);
-                if (System.IO.File.Exists(path))
-                {
-                    System.IO.File.Delete(path);
-                }
-                var thumbPath = Path.Combine(_host.WebRootPath, "tmp", name);
-                if (System.IO.File.Exists(thumbPath))
-                {
-                    System.IO.File.Delete(thumbPath);
-                }
-            }
-
             return new MessageDataResult(await ImagesService.DeleteItems(req.Names), "Delete Video");
         }
     }
