@@ -19,8 +19,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
     [Area("Api")]
     [ApiController]
     [Route("[area]/[controller]")]
-    [TypeFilter(typeof(CreateFolderAttribute), Arguments = new[] { "storage/images" })]
-    [TypeFilter(typeof(CreateFolderAttribute), Arguments = new[] { "tmp" })]
     public class ImagesController : ControllerBase
     {
         private readonly IWebHostEnvironment _host;
