@@ -108,7 +108,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool SaveItems<T>(string name, List<T> items) where T : IKeyNameModel
+        public bool SaveItems<T>(string name, IList<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -158,7 +158,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool DeleteItems<T>(string name, List<T> items) where T : IKeyNameModel
+        public bool DeleteItems<T>(string name, IList<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -215,7 +215,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool UpdateItems<T>(string name, List<T> items) where T : IKeyNameModel
+        public bool UpdateItems<T>(string name, IList<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -262,7 +262,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public List<T> GetItems<T>(string name, List<string> keyNames) where T : IKeyNameModel
+        public List<T> GetItems<T>(string name, IList<string> keyNames) where T : IKeyNameModel
         {
             if (keyNames == null)
             {

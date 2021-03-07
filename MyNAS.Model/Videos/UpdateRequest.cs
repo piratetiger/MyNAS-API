@@ -5,6 +5,6 @@ namespace MyNAS.Model.Videos
     public class UpdateRequest
     {
         public List<string> Names { get; set; } = new List<string>();
-        public VideoModel NewModel { get; set; }
+        public VideoInfoModel NewModel { get; set; }
     }
 }

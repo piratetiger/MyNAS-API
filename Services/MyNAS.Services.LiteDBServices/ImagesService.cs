@@ -10,10 +10,10 @@ namespace MyNAS.Services.LiteDbServices
 {
     public class ImagesService : LiteDBBaseService<IImagesService>, IImagesService
     {
-        public Task<DataResult<ImageModel>> GetList(GetListRequest req)
+        public Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DBAccessor.SearchItems<ImageModel>(Constants.TABLE_IMAGES, req);
-            return Task.FromResult(new DataResult<ImageModel>(Name, result));
+            var result = DBAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req);
+            return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
         public Task<DataResult<bool>> SaveItem(ImageModel item)
@@ -22,13 +22,13 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<bool>> SaveItems(List<ImageModel> items)
+        public Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
         {
             var result = DBAccessor.SaveItems(Constants.TABLE_IMAGES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<bool>> DeleteItems(List<string> names)
+        public Task<DataResult<bool>> DeleteItems(IList<string> names)
         {
             if (names == null)
             {
@@ -40,21 +40,21 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<bool>> UpdateItems(List<ImageModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IList<ImageInfoModel> items)
         {
             var result = DBAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<ImageModel>> GetItems(List<string> names)
+        public Task<DataResult<ImageInfoModel>> GetInfoList(IList<string> names)
         {
             if (names == null)
             {
-                return Task.FromResult(new DataResult<ImageModel>(Name, null));
+                return Task.FromResult(new DataResult<ImageInfoModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItems<ImageModel>(Constants.TABLE_IMAGES, names);
-            return Task.FromResult(new DataResult<ImageModel>(Name, result));
+            var result = DBAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names);
+            return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
     }
 }

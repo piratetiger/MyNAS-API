@@ -10,10 +10,10 @@ namespace MyNAS.Services.LiteDbServices
 {
     public class VideoService : LiteDBBaseService<IVideosService>, IVideosService
     {
-        public Task<DataResult<VideoModel>> GetList(GetListRequest req)
+        public Task<DataResult<VideoInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DBAccessor.SearchItems<VideoModel>(Constants.TABLE_VIDEOS, req);
-            return Task.FromResult(new DataResult<VideoModel>(Name, result));
+            var result = DBAccessor.SearchItems<VideoInfoModel>(Constants.TABLE_VIDEOS, req);
+            return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
 
         public Task<DataResult<bool>> SaveItem(VideoModel item)
@@ -22,13 +22,13 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<bool>> SaveItems(List<VideoModel> items)
+        public Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
         {
             var result = DBAccessor.SaveItems(Constants.TABLE_VIDEOS, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<bool>> DeleteItems(List<string> names)
+        public Task<DataResult<bool>> DeleteItems(IList<string> names)
         {
             if (names == null)
             {
@@ -40,21 +40,21 @@ namespace MyNAS.Services.LiteDbServices
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<bool>> UpdateItems(List<VideoModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
         {
             var result = DBAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<VideoModel>> GetItems(List<string> names)
+        public Task<DataResult<VideoInfoModel>> GetInfoList(IList<string> names)
         {
             if (names == null)
             {
-                return Task.FromResult(new DataResult<VideoModel>(Name, null));
+                return Task.FromResult(new DataResult<VideoInfoModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItems<VideoModel>(Constants.TABLE_VIDEOS, names);
-            return Task.FromResult(new DataResult<VideoModel>(Name, result));
+            var result = DBAccessor.GetItems<VideoInfoModel>(Constants.TABLE_VIDEOS, names);
+            return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
     }
 }

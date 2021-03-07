@@ -8,11 +8,11 @@ namespace MyNAS.Services.Abstraction
 {
     public interface IImagesService : ICollectionService<IImagesService>, IServiceBase
     {
-        Task<DataResult<ImageModel>> GetList(GetListRequest req)
+        Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = new DataResult<ImageModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<ImageInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetList(req);
+            return next == null ? Task.FromResult(result) : next.GetInfoList(req);
         }
 
         Task<DataResult<bool>> SaveItem(ImageModel item)
@@ -36,18 +36,18 @@ namespace MyNAS.Services.Abstraction
             return next == null ? Task.FromResult(result) : next.DeleteItems(names);
         }
 
-        Task<DataResult<bool>> UpdateItems(IList<ImageModel> items)
+        Task<DataResult<bool>> UpdateInfoList(IList<ImageInfoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.UpdateItems(items);
+            return next == null ? Task.FromResult(result) : next.UpdateInfoList(items);
         }
 
-        Task<DataResult<ImageModel>> GetItems(IList<string> names)
+        Task<DataResult<ImageInfoModel>> GetInfoList(IList<string> names)
         {
-            var result = new DataResult<ImageModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<ImageInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetItems(names);
+            return next == null ? Task.FromResult(result) : next.GetInfoList(names);
         }
     }
 }

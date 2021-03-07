@@ -50,7 +50,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         public async Task<object> GetVideoList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = await VideosService.GetList(req);
+            var list = await VideosService.GetInfoList(req);
             if ((int)user.Role <= (int)UserRole.User)
             {
                 list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
@@ -125,7 +125,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "DataAdminBase")]
         public async Task<object> UpdateVideoDate(UpdateRequest req)
         {
-            var videoList = await VideosService.GetItems(req.Names);
+            var videoList = await VideosService.GetInfoList(req.Names);
 
             if (req.NewModel != null && videoList.First != null)
             {
@@ -135,7 +135,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 }
             }
 
-            return new MessageDataResult(await VideosService.UpdateItems(videoList.Data), "Update Video");
+            return new MessageDataResult(await VideosService.UpdateInfoList(videoList.Data), "Update Video");
         }
 
         [HttpPost("delete")]

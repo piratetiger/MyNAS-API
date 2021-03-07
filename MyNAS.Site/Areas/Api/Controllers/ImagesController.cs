@@ -50,7 +50,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         public async Task<object> GetImageList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = await ImagesService.GetList(req);
+            var list = await ImagesService.GetInfoList(req);
             if ((int)user.Role <= (int)UserRole.User)
             {
                 list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
@@ -129,7 +129,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
         [Authorize(Policy = "DataAdminBase")]
         public async Task<object> UpdateImageDate(UpdateRequest req)
         {
-            var imageList = await ImagesService.GetItems(req.Names);
+            var imageList = await ImagesService.GetInfoList(req.Names);
 
             if (req.NewModel != null && imageList.First != null)
             {
@@ -139,7 +139,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 }
             }
 
-            return new MessageDataResult(await ImagesService.UpdateItems(imageList.Data), "Update Image");
+            return new MessageDataResult(await ImagesService.UpdateInfoList(imageList.Data), "Update Image");
         }
 
         [HttpPost("delete")]

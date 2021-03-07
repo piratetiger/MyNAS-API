@@ -8,11 +8,11 @@ namespace MyNAS.Services.Abstraction
 {
     public interface IVideosService : ICollectionService<IVideosService>, IServiceBase
     {
-        Task<DataResult<VideoModel>> GetList(GetListRequest req)
+        Task<DataResult<VideoInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = new DataResult<VideoModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<VideoInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetList(req);
+            return next == null ? Task.FromResult(result) : next.GetInfoList(req);
         }
 
         Task<DataResult<bool>> SaveItem(VideoModel item)
@@ -36,18 +36,18 @@ namespace MyNAS.Services.Abstraction
             return next == null ? Task.FromResult(result) : next.DeleteItems(names);
         }
 
-        Task<DataResult<bool>> UpdateItems(IList<VideoModel> items)
+        Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.UpdateItems(items);
+            return next == null ? Task.FromResult(result) : next.UpdateInfoList(items);
         }
 
-        Task<DataResult<VideoModel>> GetItems(IList<string> names)
+        Task<DataResult<VideoInfoModel>> GetInfoList(IList<string> names)
         {
-            var result = new DataResult<VideoModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<VideoInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetItems(names);
+            return next == null ? Task.FromResult(result) : next.GetInfoList(names);
         }
     }
 }
