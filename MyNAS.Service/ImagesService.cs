@@ -10,17 +10,17 @@ namespace MyNAS.Service
     {
         public List<ImageModel> GetList(GetListRequest req)
         {
-            return DBAccessor.SearchItems<ImageModel>(Constants.TABLE_IMAGES, req);
+            return DbAccessor.SearchItems<ImageModel>(Constants.TABLE_IMAGES, req);
         }
 
         public bool SaveItem(ImageModel item)
         {
-            return DBAccessor.SaveItem(Constants.TABLE_IMAGES, item);
+            return DbAccessor.SaveItem(Constants.TABLE_IMAGES, item);
         }
 
         public bool SaveItems(List<ImageModel> items)
         {
-            return DBAccessor.SaveItems(Constants.TABLE_IMAGES, items);
+            return DbAccessor.SaveItems(Constants.TABLE_IMAGES, items);
         }
 
         public bool DeleteItems(List<string> names)
@@ -31,12 +31,12 @@ namespace MyNAS.Service
             }
 
             var deleteItems = names.Select(n => new ImageModel { FileName = n }).ToList();
-            return DBAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
+            return DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
         }
 
         public bool UpdateItems(List<ImageModel> items)
         {
-            return DBAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
+            return DbAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
         }
 
         public List<ImageModel> GetItems(List<string> names)
@@ -46,7 +46,7 @@ namespace MyNAS.Service
                 return new List<ImageModel>();
             }
 
-            return DBAccessor.GetItems<ImageModel>(Constants.TABLE_IMAGES, names);
+            return DbAccessor.GetItems<ImageModel>(Constants.TABLE_IMAGES, names);
         }
     }
 }

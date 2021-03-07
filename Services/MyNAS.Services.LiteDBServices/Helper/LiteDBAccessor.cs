@@ -6,11 +6,11 @@ using MyNAS.Model;
 
 namespace MyNAS.Services.LiteDbServices.Helper
 {
-    public class LiteDBAccessor
+    public class LiteDbAccessor
     {
         private string _connectionString;
 
-        public LiteDBAccessor(string connectionString)
+        public LiteDbAccessor(string connectionString)
         {
             _connectionString = connectionString;
         }

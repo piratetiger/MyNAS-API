@@ -8,11 +8,11 @@ using MyNAS.Services.LiteDbServices.Helper;
 
 namespace MyNAS.Services.LiteDbServices
 {
-    public class AdminService : LiteDBBaseService<IAdminService>, IAdminService
+    public class AdminService : LiteDbBaseService<IAdminService>, IAdminService
     {
         public Task<DataResult<bool>> InitDB()
         {
-            var admin = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, "admin");
+            var admin = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, "admin");
             if (admin == null)
             {
                 var users = new List<UserModel>();
@@ -23,7 +23,7 @@ namespace MyNAS.Services.LiteDbServices
                     Password = "Admin",
                     Role = UserRole.SystemAdmin
                 });
-                var result = DBAccessor.SaveItems(Constants.TABLE_USERS, users);
+                var result = DbAccessor.SaveItems(Constants.TABLE_USERS, users);
                 return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
             }
             else

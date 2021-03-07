@@ -9,17 +9,17 @@ namespace MyNAS.Service
     {
         public List<FileModel> GetList(GetListRequest req)
         {
-            return DBAccessor.SearchItems<FileModel>(Constants.TABLE_FILES, req);
+            return DbAccessor.SearchItems<FileModel>(Constants.TABLE_FILES, req);
         }
 
         public bool SaveItem(FileModel item)
         {
-            return DBAccessor.SaveItem(Constants.TABLE_FILES, item);
+            return DbAccessor.SaveItem(Constants.TABLE_FILES, item);
         }
 
         public bool SaveItems(List<FileModel> items)
         {
-            return DBAccessor.SaveItems(Constants.TABLE_FILES, items);
+            return DbAccessor.SaveItems(Constants.TABLE_FILES, items);
         }
 
         public bool DeleteItems(List<string> names)
@@ -30,12 +30,12 @@ namespace MyNAS.Service
             }
 
             var deleteItems = names.Select(n => new FileModel { KeyName = n }).ToList();
-            return DBAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
+            return DbAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
         }
 
         public bool UpdateItems(List<FileModel> items)
         {
-            return DBAccessor.UpdateItems(Constants.TABLE_FILES, items);
+            return DbAccessor.UpdateItems(Constants.TABLE_FILES, items);
         }
 
         public FileModel GetItem(string name)
@@ -45,7 +45,7 @@ namespace MyNAS.Service
                 return null;
             }
 
-            return DBAccessor.GetItem<FileModel>(Constants.TABLE_FILES, name);
+            return DbAccessor.GetItem<FileModel>(Constants.TABLE_FILES, name);
         }
 
         public List<FileModel> GetItems(List<string> names)
@@ -55,7 +55,7 @@ namespace MyNAS.Service
                 return new List<FileModel>();
             }
 
-            return DBAccessor.GetItems<FileModel>(Constants.TABLE_FILES, names);
+            return DbAccessor.GetItems<FileModel>(Constants.TABLE_FILES, names);
         }
     }
 }

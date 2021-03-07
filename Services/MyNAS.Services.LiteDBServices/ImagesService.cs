@@ -8,23 +8,23 @@ using MyNAS.Services.LiteDbServices.Helper;
 
 namespace MyNAS.Services.LiteDbServices
 {
-    public class ImagesService : LiteDBBaseService<IImagesService>, IImagesService
+    public class ImagesService : LiteDbBaseService<IImagesService>, IImagesService
     {
         public Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DBAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req);
+            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req);
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
         public Task<DataResult<bool>> SaveItem(ImageModel item)
         {
-            var result = DBAccessor.SaveItem(Constants.TABLE_IMAGES, item as ImageInfoModel);
+            var result = DbAccessor.SaveItem(Constants.TABLE_IMAGES, item as ImageInfoModel);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
         public Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
         {
-            var result = DBAccessor.SaveItems(Constants.TABLE_IMAGES, items.Cast<ImageInfoModel>().ToList());
+            var result = DbAccessor.SaveItems(Constants.TABLE_IMAGES, items.Cast<ImageInfoModel>().ToList());
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
@@ -36,13 +36,13 @@ namespace MyNAS.Services.LiteDbServices
             }
 
             var deleteItems = names.Select(n => new ImageModel { FileName = n }).ToList();
-            var result = DBAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
+            var result = DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
         public Task<DataResult<bool>> UpdateInfoList(IList<ImageInfoModel> items)
         {
-            var result = DBAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
+            var result = DbAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
@@ -53,7 +53,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<ImageInfoModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names);
+            var result = DbAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names);
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
     }

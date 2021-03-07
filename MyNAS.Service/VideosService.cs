@@ -10,17 +10,17 @@ namespace MyNAS.Service
     {
         public List<VideoModel> GetList(GetListRequest req)
         {
-            return DBAccessor.SearchItems<VideoModel>(Constants.TABLE_VIDEOS, req);
+            return DbAccessor.SearchItems<VideoModel>(Constants.TABLE_VIDEOS, req);
         }
 
         public bool SaveItem(VideoModel item)
         {
-            return DBAccessor.SaveItem(Constants.TABLE_VIDEOS, item);
+            return DbAccessor.SaveItem(Constants.TABLE_VIDEOS, item);
         }
 
         public bool SaveItems(List<VideoModel> items)
         {
-            return DBAccessor.SaveItems(Constants.TABLE_VIDEOS, items);
+            return DbAccessor.SaveItems(Constants.TABLE_VIDEOS, items);
         }
 
         public bool DeleteItems(List<string> names)
@@ -31,12 +31,12 @@ namespace MyNAS.Service
             }
 
             var deleteItems = names.Select(n => new VideoModel { FileName = n }).ToList();
-            return DBAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
+            return DbAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
         }
 
         public bool UpdateItems(List<VideoModel> items)
         {
-            return DBAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
+            return DbAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
         }
 
         public List<VideoModel> GetItems(List<string> names)
@@ -46,7 +46,7 @@ namespace MyNAS.Service
                 return new List<VideoModel>();
             }
 
-            return DBAccessor.GetItems<VideoModel>(Constants.TABLE_VIDEOS, names);
+            return DbAccessor.GetItems<VideoModel>(Constants.TABLE_VIDEOS, names);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace MyNAS.Service
                 return null;
             }
 
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, req.UserName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, req.UserName);
 
             if (dbUser != null && dbUser.Password == req.Password)
             {
@@ -28,7 +28,7 @@ namespace MyNAS.Service
 
         public bool ValidateUser(UserModel user)
         {
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
 
             if (dbUser != null)
             {
@@ -49,7 +49,7 @@ namespace MyNAS.Service
 
         public string NewToken(UserModel user)
         {
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
 
             if (dbUser != null)
             {
@@ -60,7 +60,7 @@ namespace MyNAS.Service
                 dbUser.HostInfo = user.HostInfo;
                 dbUser.Token = token;
                 dbUser.TokenDate = date;
-                DBAccessor.UpdateItem(Constants.TABLE_USERS, dbUser);
+                DbAccessor.UpdateItem(Constants.TABLE_USERS, dbUser);
                 return token;
             }
             else
@@ -71,22 +71,22 @@ namespace MyNAS.Service
 
         public List<UserModel> GetList()
         {
-            return DBAccessor.GetAll<UserModel>(Constants.TABLE_USERS);
+            return DbAccessor.GetAll<UserModel>(Constants.TABLE_USERS);
         }
 
         public UserModel GetItem(string name)
         {
-            return DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, name);
+            return DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, name);
         }
 
         public bool SaveItem(UserModel item)
         {
-            return DBAccessor.SaveItem(Constants.TABLE_USERS, item);
+            return DbAccessor.SaveItem(Constants.TABLE_USERS, item);
         }
 
         public bool UpdateItem(UserModel item)
         {
-            var user = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, item?.KeyName);
+            var user = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, item?.KeyName);
             if (user != null)
             {
                 if (!string.IsNullOrEmpty(item.Password))
@@ -96,12 +96,12 @@ namespace MyNAS.Service
                 user.Role = item.Role;
                 user.NickName = item.NickName;
             }
-            return DBAccessor.UpdateItem(Constants.TABLE_USERS, user);
+            return DbAccessor.UpdateItem(Constants.TABLE_USERS, user);
         }
 
         public bool DeleteItem(UserModel item)
         {
-            return DBAccessor.DeleteItem(Constants.TABLE_USERS, item);
+            return DbAccessor.DeleteItem(Constants.TABLE_USERS, item);
         }
 
         private string GetToken(UserModel user)

@@ -8,23 +8,23 @@ using MyNAS.Services.LiteDbServices.Helper;
 
 namespace MyNAS.Services.LiteDbServices
 {
-    public class VideoService : LiteDBBaseService<IVideosService>, IVideosService
+    public class VideoService : LiteDbBaseService<IVideosService>, IVideosService
     {
         public Task<DataResult<VideoInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DBAccessor.SearchItems<VideoInfoModel>(Constants.TABLE_VIDEOS, req);
+            var result = DbAccessor.SearchItems<VideoInfoModel>(Constants.TABLE_VIDEOS, req);
             return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
 
         public Task<DataResult<bool>> SaveItem(VideoModel item)
         {
-            var result = DBAccessor.SaveItem(Constants.TABLE_VIDEOS, item as VideoInfoModel);
+            var result = DbAccessor.SaveItem(Constants.TABLE_VIDEOS, item as VideoInfoModel);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
         {
-            var result = DBAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Cast<VideoInfoModel>().ToList());
+            var result = DbAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Cast<VideoInfoModel>().ToList());
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
@@ -36,13 +36,13 @@ namespace MyNAS.Services.LiteDbServices
             }
 
             var deleteItems = names.Select(n => new VideoModel { FileName = n }).ToList();
-            var result = DBAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
+            var result = DbAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
         {
-            var result = DBAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
+            var result = DbAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
@@ -53,7 +53,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<VideoInfoModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItems<VideoInfoModel>(Constants.TABLE_VIDEOS, names);
+            var result = DbAccessor.GetItems<VideoInfoModel>(Constants.TABLE_VIDEOS, names);
             return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
     }

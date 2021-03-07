@@ -9,7 +9,7 @@ using MyNAS.Util;
 
 namespace MyNAS.Services.LiteDbServices
 {
-    public class UserService : LiteDBBaseService<IUserService>, IUserService
+    public class UserService : LiteDbBaseService<IUserService>, IUserService
     {
         public async Task<DataResult<UserModel>> Login(LoginRequest req)
         {
@@ -18,7 +18,7 @@ namespace MyNAS.Services.LiteDbServices
                 return new DataResult<UserModel>(Name, null);
             }
 
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, req.UserName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, req.UserName);
 
             if (dbUser != null && dbUser.Password == req.Password)
             {
@@ -32,7 +32,7 @@ namespace MyNAS.Services.LiteDbServices
 
         public Task<DataResult<bool>> ValidateUser(UserModel user)
         {
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
 
             if (dbUser != null)
             {
@@ -53,7 +53,7 @@ namespace MyNAS.Services.LiteDbServices
 
         public Task<DataResult<string>> NewToken(UserModel user)
         {
-            var dbUser = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
+            var dbUser = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, user.KeyName);
 
             if (dbUser != null)
             {
@@ -64,7 +64,7 @@ namespace MyNAS.Services.LiteDbServices
                 dbUser.HostInfo = user.HostInfo;
                 dbUser.Token = token;
                 dbUser.TokenDate = date;
-                DBAccessor.UpdateItem(Constants.TABLE_USERS, dbUser);
+                DbAccessor.UpdateItem(Constants.TABLE_USERS, dbUser);
                 return Task.FromResult(new DataResult<string>(Name, new List<string>() { token }));
             }
             else
@@ -75,25 +75,25 @@ namespace MyNAS.Services.LiteDbServices
 
         public Task<DataResult<UserModel>> GetList()
         {
-            var result = DBAccessor.GetAll<UserModel>(Constants.TABLE_USERS);
+            var result = DbAccessor.GetAll<UserModel>(Constants.TABLE_USERS);
             return Task.FromResult(new DataResult<UserModel>(Name, result));
         }
 
         public Task<DataResult<UserModel>> GetItem(string name)
         {
-            var result = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, name);
+            var result = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, name);
             return Task.FromResult(new DataResult<UserModel>(Name, new List<UserModel>() { result }));
         }
 
         public Task<DataResult<bool>> SaveItem(UserModel item)
         {
-            var result = DBAccessor.SaveItem(Constants.TABLE_USERS, item);
+            var result = DbAccessor.SaveItem(Constants.TABLE_USERS, item);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> UpdateItem(UserModel item)
         {
-            var user = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, item?.KeyName);
+            var user = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, item?.KeyName);
             if (user != null)
             {
                 if (!string.IsNullOrEmpty(item.Password))
@@ -103,13 +103,13 @@ namespace MyNAS.Services.LiteDbServices
                 user.Role = item.Role;
                 user.NickName = item.NickName;
             }
-            var result = DBAccessor.UpdateItem(Constants.TABLE_USERS, user);
+            var result = DbAccessor.UpdateItem(Constants.TABLE_USERS, user);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> DeleteItem(UserModel item)
         {
-            var result = DBAccessor.DeleteItem(Constants.TABLE_USERS, item);
+            var result = DbAccessor.DeleteItem(Constants.TABLE_USERS, item);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 

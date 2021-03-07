@@ -8,23 +8,23 @@ using MyNAS.Services.LiteDbServices.Helper;
 
 namespace MyNAS.Services.LiteDbServices
 {
-    public class FilesService : LiteDBBaseService<IFilesService>, IFilesService
+    public class FilesService : LiteDbBaseService<IFilesService>, IFilesService
     {
         public Task<DataResult<FileModel>> GetList(GetListRequest req)
         {
-            var result = DBAccessor.SearchItems<FileModel>(Constants.TABLE_FILES, req);
+            var result = DbAccessor.SearchItems<FileModel>(Constants.TABLE_FILES, req);
             return Task.FromResult(new DataResult<FileModel>(Name, result));
         }
 
         public Task<DataResult<bool>> SaveItem(FileModel item)
         {
-            var result = DBAccessor.SaveItem(Constants.TABLE_FILES, item);
+            var result = DbAccessor.SaveItem(Constants.TABLE_FILES, item);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> SaveItems(List<FileModel> items)
         {
-            var result = DBAccessor.SaveItems(Constants.TABLE_FILES, items);
+            var result = DbAccessor.SaveItems(Constants.TABLE_FILES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
@@ -36,13 +36,13 @@ namespace MyNAS.Services.LiteDbServices
             }
 
             var deleteItems = names.Select(n => new FileModel { KeyName = n }).ToList();
-            var result = DBAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
+            var result = DbAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> UpdateItems(List<FileModel> items)
         {
-            var result = DBAccessor.UpdateItems(Constants.TABLE_FILES, items);
+            var result = DbAccessor.UpdateItems(Constants.TABLE_FILES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
@@ -53,7 +53,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<FileModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItem<FileModel>(Constants.TABLE_FILES, name);
+            var result = DbAccessor.GetItem<FileModel>(Constants.TABLE_FILES, name);
             return Task.FromResult(new DataResult<FileModel>(Name, new List<FileModel>() { result }));
         }
 
@@ -64,7 +64,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<FileModel>(Name, null));
             }
 
-            var result = DBAccessor.GetItems<FileModel>(Constants.TABLE_FILES, names);
+            var result = DbAccessor.GetItems<FileModel>(Constants.TABLE_FILES, names);
             return Task.FromResult(new DataResult<FileModel>(Name, result));
         }
     }
