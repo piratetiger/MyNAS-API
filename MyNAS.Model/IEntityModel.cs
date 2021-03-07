@@ -2,7 +2,7 @@ namespace MyNAS.Model
 {
     public interface IEntityModel
     {
-        byte[] FileBytes { get; set; }
-        byte[] FileThumbBytes { get; set; }
+        byte[] Contents { get; set; }
+        byte[] ThumbContents { get; set; }
     }
 }

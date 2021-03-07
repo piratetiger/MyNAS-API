@@ -18,13 +18,13 @@ namespace MyNAS.Services.LiteDbServices
 
         public Task<DataResult<bool>> SaveItem(VideoModel item)
         {
-            var result = DBAccessor.SaveItem(Constants.TABLE_VIDEOS, item);
+            var result = DBAccessor.SaveItem(Constants.TABLE_VIDEOS, item as VideoInfoModel);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
         public Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
         {
-            var result = DBAccessor.SaveItems(Constants.TABLE_VIDEOS, items);
+            var result = DBAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Cast<VideoInfoModel>().ToList());
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
