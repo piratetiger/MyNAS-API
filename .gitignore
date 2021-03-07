@@ -3,5 +3,5 @@
 **/db_files/*.db
 MyNAS.Site/logs
 **/tmp
-**/wwwroot/storage/**/*.*
-**/wwwroot/storage/**/*
+**/storage/**/*.*
+**/storage/**/*

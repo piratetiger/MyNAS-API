@@ -34,6 +34,7 @@ namespace MyNAS.Site
             services.AddHostedService<TorrentDownloadService>();
 
             services.AddLiteDbServices();
+            services.AddFileSystemServices();
 
             services.AddControllers(options =>
                 {

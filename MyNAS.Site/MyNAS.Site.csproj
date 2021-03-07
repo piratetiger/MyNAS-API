@@ -21,6 +21,7 @@
     <ProjectReference Include="..\MyNAS.Service\MyNAS.Service.csproj" />
     <ProjectReference Include="..\MyNAS.Util\MyNAS.Util.csproj" />
     <ProjectReference Include="..\Services\MyNAS.Services.LiteDbServices\MyNAS.Services.LiteDbServices.csproj" />
+    <ProjectReference Include="..\Services\MyNAS.Services.FileSystemServices\MyNAS.Services.FileSystemServices.csproj" />
   </ItemGroup>
 
 </Project>

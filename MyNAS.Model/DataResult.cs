@@ -17,6 +17,10 @@ namespace MyNAS.Model
             {
                 return _source;
             }
+            set
+            {
+                _source = value;
+            }
         }
 
         public IList<T> Data
