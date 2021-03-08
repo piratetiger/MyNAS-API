@@ -5,7 +5,6 @@ using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using MyNAS.Service;
 using MyNAS.Site.Models;
 
 namespace MyNAS.Site.Controllers
@@ -14,14 +13,6 @@ namespace MyNAS.Site.Controllers
     public class HomeController : Controller
     {
         private readonly IWebHostEnvironment _host;
-
-        protected AdminService AdminService
-        {
-            get
-            {
-                return new AdminService();
-            }
-        }
 
         public HomeController(IWebHostEnvironment host)
         {
