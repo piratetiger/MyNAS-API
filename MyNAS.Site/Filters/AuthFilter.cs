@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyNAS.Model.User;
-using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.Helper;
 
 namespace MyNAS.Site
@@ -16,20 +17,36 @@ namespace MyNAS.Site
     {
         private readonly HttpContext _httpContext;
 
+        private readonly ServiceCollection<IUserService> _userServices;
+        private IUserService _userService;
+        protected IUserService UserService
+        {
+            get
+            {
+                if (_userService == null)
+                {
+                    _userService = _userServices.First();
+                }
+
+                return _userService;
+            }
+        }
+
         public MyNASAuthHandler(IOptionsMonitor<MyNASAuthOptions> options,
                                 ILoggerFactory logger,
                                 UrlEncoder encoder,
                                 ISystemClock clock,
-                                IHttpContextAccessor httpContext) : base(options, logger, encoder, clock)
+                                IHttpContextAccessor httpContext,
+                                IEnumerable<IUserService> userServices) : base(options, logger, encoder, clock)
         {
             _httpContext = httpContext.HttpContext;
+            _userServices = new ServiceCollection<IUserService>(userServices);
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             try
             {
-                var service = new UserService();
                 var token = _httpContext.Request.Headers["x-login-token"];
                 var userName = _httpContext.Request.Headers["x-login-user"];
                 var hostInfo = _httpContext.GetUserAgent();
@@ -37,7 +54,7 @@ namespace MyNAS.Site
                 user.UserName = userName;
                 user.Token = token;
                 user.HostInfo = hostInfo;
-                var result = service.ValidateUser(user);
+                var result = (await UserService.ValidateUser(user)).First;
                 if (result)
                 {
                     _httpContext.Items.Add("User", user);
@@ -48,16 +65,16 @@ namespace MyNAS.Site
                     var identity = new ClaimsIdentity(claim, MyNASAuthOptions.DefaultType);
                     var principal = new ClaimsPrincipal(identity);
                     var ticker = new AuthenticationTicket(principal, MyNASAuthOptions.DefaultScheme);
-                    return Task.FromResult(AuthenticateResult.Success(ticker));
+                    return AuthenticateResult.Success(ticker);
                 }
                 else
                 {
-                    return Task.FromResult(AuthenticateResult.Fail("Authentication Failed."));
+                    return AuthenticateResult.Fail("Authentication Failed.");
                 }
             }
             catch (Exception ex)
             {
-                return Task.FromResult(AuthenticateResult.Fail(ex.Message));
+                return AuthenticateResult.Fail(ex.Message);
             }
         }
     }
