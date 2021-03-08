@@ -6,13 +6,13 @@ using MyNAS.Model;
 
 namespace MyNAS.Service
 {
-    public class LiteDBAccessor
+    public class LiteDbAccessor
     {
         public const string DB_FILE_NAME = "db_files/MyNAS.db";
 
         private string DBFile { get; set; }
 
-        public LiteDBAccessor(string dbFile = DB_FILE_NAME)
+        public LiteDbAccessor(string dbFile = DB_FILE_NAME)
         {
             DBFile = dbFile;
         }

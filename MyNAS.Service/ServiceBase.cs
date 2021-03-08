@@ -2,11 +2,11 @@ namespace MyNAS.Service
 {
     public abstract class ServiceBase
     {
-        protected LiteDBAccessor DBAccessor
+        protected LiteDbAccessor DbAccessor
         {
             get
             {
-                return new LiteDBAccessor();
+                return new LiteDbAccessor();
             }
         }
     }

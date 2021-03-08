@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyNAS.Model;
 using MyNAS.Model.Logs;
-using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 
 namespace MyNAS.Site.Areas.Api.Controllers
 {
@@ -11,26 +11,39 @@ namespace MyNAS.Site.Areas.Api.Controllers
     [ApiController]
     [Route("[area]/[controller]")]
     [Authorize(Policy = "Admin")]
-    public class LogsController
+    public class LogsController : ControllerBase
     {
-        protected LogsService LogsService
+        private readonly ServiceCollection<ILogsService> _logsServices;
+        private ILogsService _logsService;
+        protected ILogsService LogsService
         {
             get
             {
-                return new LogsService();
+                if (_logsService == null)
+                {
+                    _logsServices.FilterOrder = this.GetServiceFilterOrder();
+                    _logsService = _logsServices.First();
+                }
+
+                return _logsService;
             }
         }
 
-        [HttpPost("audit/list")]
-        public object GetAuditLogList(GetListRequest req)
+        public LogsController(IEnumerable<ILogsService> logsServices)
         {
-            return new DataResult<List<AuditLogModel>>(LogsService.GetAuditLogList(req));
+            _logsServices = new ServiceCollection<ILogsService>(logsServices);
+        }
+
+        [HttpPost("audit/list")]
+        public async Task<object> GetAuditLogList(GetListRequest req)
+        {
+            return await LogsService.GetAuditLogList(req);
         }
 
         [HttpPost("error/list")]
-        public object GetErrorLogList(GetListRequest req)
+        public async Task<object> GetErrorLogList(GetListRequest req)
         {
-            return new DataResult<List<ErrorLogModel>>(LogsService.GetErrorLogList(req));
+            return await LogsService.GetErrorLogList(req);
         }
     }
 }

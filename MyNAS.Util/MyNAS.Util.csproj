@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Xabe.FFMpeg" Version="4.4.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
     <PackageReference Include="MonoTorrent" Version="1.0.12" />
   </ItemGroup>

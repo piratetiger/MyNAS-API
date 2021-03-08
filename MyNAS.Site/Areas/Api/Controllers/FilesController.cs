@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.Files;
 using MyNAS.Model.User;
-using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.BackendServices;
 using MyNAS.Site.Helper;
 
@@ -18,58 +19,68 @@ namespace MyNAS.Site.Areas.Api.Controllers
     [Area("Api")]
     [ApiController]
     [Route("[area]/[controller]")]
-    [TypeFilter(typeof(CreateFolderAttribute), Arguments = new[] { "storage/files" })]
-    [TypeFilter(typeof(CreateFolderAttribute), Arguments = new[] { "storage/files/downloads" })]
     public class FilesController : ControllerBase
     {
         private readonly IWebHostEnvironment _host;
         private readonly ITorrentDownloadService _btService;
 
-        protected FilesService FilesService
+        private readonly ServiceCollection<IFilesService> _filesServices;
+        private IFilesService _filesService;
+        protected IFilesService FilesService
         {
             get
             {
-                return new FilesService();
+                if (_filesService == null)
+                {
+                    _filesServices.FilterOrder = this.GetServiceFilterOrder();
+                    _filesService = _filesServices.First();
+                }
+
+                return _filesService;
             }
         }
 
-        public FilesController(IWebHostEnvironment host, ITorrentDownloadService btService)
+        public FilesController(IWebHostEnvironment host, ITorrentDownloadService btService, IEnumerable<IFilesService> filesServices)
         {
             _host = host;
+            _filesServices = new ServiceCollection<IFilesService>(filesServices);
             _btService = btService;
         }
 
         [HttpPost("list")]
-        public object GetFilesList(GetListRequest req)
+        public async Task<object> GetFilesList(GetListRequest req)
         {
             var user = HttpContext.GetUser();
-            var list = FilesService.GetList(req).OrderByDescending(f => f.IsFolder).ToList();
+            var dataResult = await FilesService.GetInfoList(req);
+            dataResult.Data = dataResult.Data.OrderByDescending(f => f.IsFolder).ToList();
             if ((int)user.Role <= (int)UserRole.User)
             {
-                list = list.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                dataResult.Data = dataResult.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
             }
-            return new DataResult<List<FileModel>>(list);
+            return dataResult;
         }
 
         [HttpGet("")]
         [AllowAnonymous]
-        public ActionResult GetFile(string name)
+        public async Task<ActionResult> GetFile(string name)
         {
-            var item = FilesService.GetItem(name);
-            var path = string.Empty;
+            var item = (await FilesService.GetInfo(name)).First;
             if (item != null)
             {
-                path = Path.Combine(_host.WebRootPath, "storage/files", item.PathName ?? string.Empty, item.KeyName);
+                var bytes = (await FilesService.GetItemContents(item)).First;
+                return File(bytes, "text/plain", item.FileName);
             }
-
-            return PhysicalFile(path, "text/plain", item.FileName);
+            else
+            {
+                return null;
+            }
         }
 
         [HttpPost("add")]
         [Authorize(Policy = "UserBase")]
         [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         [RequestSizeLimit(104857600)]
-        public object UploadFile(IEnumerable<IFormFile> files, [FromForm] string cate, [FromForm] bool isPublic)
+        public async Task<object> UploadFile(IEnumerable<IFormFile> files, [FromForm] string cate, [FromForm] bool isPublic)
         {
             var fileList = new List<FileModel>();
             var date = DateTime.Now;
@@ -80,7 +91,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                     var pathName = string.Empty;
                     if (!string.IsNullOrEmpty(cate))
                     {
-                        var cateModel = FilesService.GetItem(cate);
+                        var cateModel = (await FilesService.GetInfo(cate)).First;
                         if (cateModel == null)
                         {
                             continue;
@@ -91,15 +102,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         }
                     }
                     var keyName = $"{date.ToString("yyyyMMdd")}_{Guid.NewGuid().ToString()}";
-                    var path = Path.Combine(_host.WebRootPath, "storage/files", pathName, keyName);
-                    using (var fileStream = System.IO.File.Create(path))
-                    {
-                        using (var requestFileStream = file.OpenReadStream())
-                        {
-                            requestFileStream.Seek(0, SeekOrigin.Begin);
-                            requestFileStream.CopyTo(fileStream);
-                        }
-                    }
 
                     var fileModel = new FileModel()
                     {
@@ -112,59 +114,53 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         PathName = pathName,
                         IsFolder = false
                     };
+
+                    using (var stream = file.OpenReadStream())
+                    {
+                        fileModel.Contents = new byte[stream.Length];
+                        await stream.ReadAsync(fileModel.Contents, 0, fileModel.Contents.Length);
+                    }
                     fileList.Add(fileModel);
                 }
                 catch { }
             }
 
-            return new MessageDataResult("Upload File", FilesService.SaveItems(fileList));
+            return new MessageDataResult(await FilesService.SaveItems(fileList), "Upload File");
         }
 
         [HttpPost("folder/add")]
         [Authorize(Policy = "UserBase")]
-        public object CreateFolder(CreateFolderRequest req)
+        public async Task<object> CreateFolder(CreateFolderRequest req)
         {
             var date = DateTime.Now;
-            var success = true;
-            try
+            var pathName = string.Empty;
+            if (!string.IsNullOrEmpty(req.Cate))
             {
-                var pathName = string.Empty;
-                if (!string.IsNullOrEmpty(req.Cate))
+                var cateModel = (await FilesService.GetInfo(req.Cate)).First;
+                if (cateModel == null)
                 {
-                    var cateModel = FilesService.GetItem(req.Cate);
-                    if (cateModel == null)
-                    {
-                        throw new ArgumentException();
-                    }
-                    else
-                    {
-                        pathName = cateModel.PathName;
-                    }
+                    throw new ArgumentException();
                 }
-                var keyName = $"{date.ToString("yyyyMMdd")}_{Guid.NewGuid().ToString()}";
-                var path = Path.Combine(_host.WebRootPath, "storage/files", pathName, req.Name);
-                System.IO.Directory.CreateDirectory(path);
-
-                var fileModel = new FileModel()
+                else
                 {
-                    KeyName = keyName,
-                    FileName = req.Name,
-                    Date = DateTime.Now,
-                    IsPublic = req.IsPublic,
-                    Owner = User.Identity.Name,
-                    Cate = string.IsNullOrEmpty(req.Cate) ? null : req.Cate,
-                    PathName = string.IsNullOrEmpty(pathName) ? req.Name : $"{pathName}/{req.Name}",
-                    IsFolder = true
-                };
-
-                success = FilesService.SaveItem(fileModel);
+                    pathName = cateModel.PathName;
+                }
             }
-            catch
+            var keyName = $"{date.ToString("yyyyMMdd")}_{Guid.NewGuid().ToString()}";
+
+            var fileModel = new FileModel()
             {
-                success = false;
-            }
+                KeyName = keyName,
+                FileName = req.Name,
+                Date = DateTime.Now,
+                IsPublic = req.IsPublic,
+                Owner = User.Identity.Name,
+                Cate = string.IsNullOrEmpty(req.Cate) ? null : req.Cate,
+                PathName = string.IsNullOrEmpty(pathName) ? req.Name : $"{pathName}/{req.Name}",
+                IsFolder = true
+            };
 
-            return new MessageDataResult("Create Folder", success);
+            return new MessageDataResult(await FilesService.SaveItem(fileModel), "Create Folder");
         }
 
         [HttpPost("addbttask")]
@@ -188,13 +184,13 @@ namespace MyNAS.Site.Areas.Api.Controllers
                 success = false;
             }
 
-            return new MessageDataResult("Add Bt Task", success);
+            return new MessageDataResult(nameof(FilesController), success, "Add Bt Task");
         }
 
-        [HttpPost("status")]
-        public object GetStatus()
-        {
-            return new DataResult<double[]>(_btService.Status());
-        }
+        // [HttpPost("status")]
+        // public object GetStatus()
+        // {
+        //     return new DataResult<double[]>(_btService.Status());
+        // }
     }
 }

@@ -9,7 +9,7 @@ namespace MyNAS.Service
     {
         public bool InitDB()
         {
-            var admin = DBAccessor.GetItem<UserModel>(Constants.TABLE_USERS, "admin");
+            var admin = DbAccessor.GetItem<UserModel>(Constants.TABLE_USERS, "admin");
             if (admin == null)
             {
                 var users = new List<UserModel>();
@@ -20,7 +20,7 @@ namespace MyNAS.Service
                     Password = "Admin",
                     Role = UserRole.SystemAdmin
                 });
-                return DBAccessor.SaveItems(Constants.TABLE_USERS, users);
+                return DbAccessor.SaveItems(Constants.TABLE_USERS, users);
             }
             else
             {

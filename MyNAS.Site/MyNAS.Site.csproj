@@ -6,7 +6,6 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.7.8" />
     <PackageReference Include="NLog.LiteDb" Version="2019.3.22.3" />
@@ -17,11 +16,12 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
-
   <ItemGroup>
     <ProjectReference Include="..\MyNAS.Model\MyNAS.Model.csproj" />
     <ProjectReference Include="..\MyNAS.Service\MyNAS.Service.csproj" />
     <ProjectReference Include="..\MyNAS.Util\MyNAS.Util.csproj" />
+    <ProjectReference Include="..\Services\MyNAS.Services.LiteDbServices\MyNAS.Services.LiteDbServices.csproj" />
+    <ProjectReference Include="..\Services\MyNAS.Services.FileSystemServices\MyNAS.Services.FileSystemServices.csproj" />
   </ItemGroup>
 
 </Project>

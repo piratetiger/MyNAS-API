@@ -6,19 +6,19 @@ namespace MyNAS.Service
 {
     public class LogsService
     {
-        protected LiteDBAccessor AuditLogAccessor
+        protected LiteDbAccessor AuditLogAccessor
         {
             get
             {
-                return new LiteDBAccessor("logs/AuditLog.db");
+                return new LiteDbAccessor("logs/AuditLog.db");
             }
         }
 
-        protected LiteDBAccessor ErrorLogAccessor
+        protected LiteDbAccessor ErrorLogAccessor
         {
             get
             {
-                return new LiteDBAccessor("logs/ErrorLog.db");
+                return new LiteDbAccessor("logs/ErrorLog.db");
             }
         }
 

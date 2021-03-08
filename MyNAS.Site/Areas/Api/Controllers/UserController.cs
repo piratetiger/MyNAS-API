@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNAS.Model;
 using MyNAS.Model.User;
 using MyNAS.Service;
+using MyNAS.Services.Abstraction;
 using MyNAS.Site.Helper;
 
 namespace MyNAS.Site.Areas.Api.Controllers
@@ -14,31 +16,52 @@ namespace MyNAS.Site.Areas.Api.Controllers
     [Route("[area]/[controller]")]
     public class UserController : ControllerBase
     {
-        protected UserService UserService
+        private readonly ServiceCollection<IUserService> _userServices;
+        private IUserService _userService;
+        protected IUserService UserService
         {
             get
             {
-                return new UserService();
+                if (_userService == null)
+                {
+                    _userServices.FilterOrder = this.GetServiceFilterOrder();
+                    _userService = _userServices.First();
+                }
+
+                return _userService;
             }
+        }
+
+        public UserController(IEnumerable<IUserService> userServices)
+        {
+            _userServices = new ServiceCollection<IUserService>(userServices);
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public object Login(LoginRequest req)
+        public async Task<object> Login(LoginRequest req)
         {
             req.HostInfo = HttpContext.GetUserAgent();
-            var user = UserService.Login(req);
-            return new MessageDataResult<UserModel>("Login", user != null, user);
+            var result = await UserService.Login(req);
+            var user = result.First;
+            if (user != null)
+            {
+                return result;
+            }
+            else
+            {
+                return new MessageDataResult(result.Source, false, "Login");
+            }
         }
 
         [HttpPost("update")]
-        public object UpdateUser(UserRequest req)
+        public async Task<object> UpdateUser(UserRequest req)
         {
             UserModel user = null;
 
             if (req.User != null)
             {
-                user = UserService.GetItem(req.User.UserName);
+                user = (await UserService.GetItem(req.User.UserName)).First;
 
                 if (user != null)
                 {
@@ -53,32 +76,27 @@ namespace MyNAS.Site.Areas.Api.Controllers
                     }
                     else
                     {
-                        return new MessageDataResult("Update User", false);
+                        return new MessageDataResult(nameof(UserController), false, "Update User");
                     }
                 }
             }
-            return new MessageDataResult("Update User", UserService.UpdateItem(user));
+            return new MessageDataResult(await UserService.UpdateItem(user), "Update User");
         }
 
         [HttpPost("list")]
-        public object GetUserList()
+        public async Task<object> GetUserList()
         {
-            var users = UserService.GetList();
-            var result = new List<UserModel>();
+            var users = await UserService.GetList();
             if (User.IsInRole(UserRole.Guest.ToString()))
             {
-                result = users.Where(u => u.KeyName == User.Identity.Name).ToList();
+                users.Data = users.Data.Where(u => u.KeyName == User.Identity.Name).ToList();
             }
             else if (User.IsInRole(UserRole.User.ToString()))
             {
-                result = users.Where(u => u.Role == UserRole.Guest || u.Role == UserRole.User).ToList();
-            }
-            else
-            {
-                result = users;
+                users.Data = users.Data.Where(u => u.Role == UserRole.Guest || u.Role == UserRole.User).ToList();
             }
 
-            return new DataResult<List<UserModel>>(result);
+            return users;
         }
     }
 }

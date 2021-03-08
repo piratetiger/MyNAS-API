@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MyNAS.Service;
 using NLog.Web;
 
 namespace MyNAS.Site
@@ -18,9 +17,6 @@ namespace MyNAS.Site
     {
         public static void Main(string[] args)
         {
-            var adminService = new AdminService();
-            adminService.InitDB();
-
             CreateWebHostBuilder(args).Build().Run();
         }
 

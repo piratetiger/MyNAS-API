@@ -1,15 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\MyNAS.Model\MyNAS.Model.csproj" />
-  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="4.1.4" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\MyNAS.Model\MyNAS.Model.csproj" />
+  </ItemGroup>
 </Project>
