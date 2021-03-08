@@ -10,6 +10,7 @@ namespace MyNAS.Site
         {
             services.AddScoped<IImagesService, ImagesService>();
             services.AddScoped<IVideosService, VideosService>();
+            services.AddScoped<IFilesService, FilesService>();
         }
     }
 }

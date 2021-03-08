@@ -8,11 +8,11 @@ namespace MyNAS.Services.Abstraction
 {
     public interface IFilesService : ICollectionService<IFilesService>, IServiceBase
     {
-        Task<DataResult<FileModel>> GetList(GetListRequest req)
+        Task<DataResult<FileInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = new DataResult<FileModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<FileInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetList(req);
+            return next == null ? Task.FromResult(result) : next.GetInfoList(req);
         }
 
         Task<DataResult<bool>> SaveItem(FileModel item)
@@ -36,25 +36,25 @@ namespace MyNAS.Services.Abstraction
             return next == null ? Task.FromResult(result) : next.DeleteItems(names);
         }
 
-        Task<DataResult<bool>> UpdateItems(List<FileModel> items)
+        Task<DataResult<bool>> UpdateInfoList(List<FileInfoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.UpdateItems(items);
+            return next == null ? Task.FromResult(result) : next.UpdateInfoList(items);
         }
 
-        Task<DataResult<FileModel>> GetItem(string name)
+        Task<DataResult<FileInfoModel>> GetInfo(string name)
         {
-            var result = new DataResult<FileModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<FileInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetItem(name);
+            return next == null ? Task.FromResult(result) : next.GetInfo(name);
         }
 
-        Task<DataResult<FileModel>> GetItems(List<string> names)
+        Task<DataResult<byte[]>> GetItemContents(FileInfoModel item)
         {
-            var result = new DataResult<FileModel>(Name, null, Constants.End_Of_Chain);
+            var result = new DataResult<byte[]>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
-            return next == null ? Task.FromResult(result) : next.GetItems(names);
+            return next == null ? Task.FromResult(result) : next.GetItemContents(item);
         }
     }
 }

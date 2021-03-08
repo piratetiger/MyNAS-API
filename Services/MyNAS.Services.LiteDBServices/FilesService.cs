@@ -10,22 +10,42 @@ namespace MyNAS.Services.LiteDbServices
 {
     public class FilesService : LiteDbBaseService<IFilesService>, IFilesService
     {
-        public Task<DataResult<FileModel>> GetList(GetListRequest req)
+        public Task<DataResult<FileInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DbAccessor.SearchItems<FileModel>(Constants.TABLE_FILES, req);
-            return Task.FromResult(new DataResult<FileModel>(Name, result));
+            var result = DbAccessor.SearchItems<FileInfoModel>(Constants.TABLE_FILES, req);
+            return Task.FromResult(new DataResult<FileInfoModel>(Name, result));
         }
 
-        public Task<DataResult<bool>> SaveItem(FileModel item)
+        public async Task<DataResult<bool>> SaveItem(FileModel item)
         {
-            var result = DbAccessor.SaveItem(Constants.TABLE_FILES, item);
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
+            var saveResult = DbAccessor.SaveItem(Constants.TABLE_FILES, item as FileInfoModel);
+            var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItem(item);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
-        public Task<DataResult<bool>> SaveItems(List<FileModel> items)
+        public async Task<DataResult<bool>> SaveItems(List<FileModel> items)
         {
-            var result = DbAccessor.SaveItems(Constants.TABLE_FILES, items);
-            return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
+            var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Cast<FileInfoModel>().ToList());
+            var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.SaveItems(items);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
+
+            return result;
         }
 
         public Task<DataResult<bool>> DeleteItems(List<string> names)
@@ -35,37 +55,26 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { false }));
             }
 
-            var deleteItems = names.Select(n => new FileModel { KeyName = n }).ToList();
+            var deleteItems = names.Select(n => new FileInfoModel { KeyName = n }).ToList();
             var result = DbAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<bool>> UpdateItems(List<FileModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(List<FileInfoModel> items)
         {
             var result = DbAccessor.UpdateItems(Constants.TABLE_FILES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<FileModel>> GetItem(string name)
+        public Task<DataResult<FileInfoModel>> GetInfo(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
-                return Task.FromResult(new DataResult<FileModel>(Name, null));
+                return Task.FromResult(new DataResult<FileInfoModel>(Name, null));
             }
 
-            var result = DbAccessor.GetItem<FileModel>(Constants.TABLE_FILES, name);
-            return Task.FromResult(new DataResult<FileModel>(Name, new List<FileModel>() { result }));
-        }
-
-        public Task<DataResult<FileModel>> GetItems(List<string> names)
-        {
-            if (names == null)
-            {
-                return Task.FromResult(new DataResult<FileModel>(Name, null));
-            }
-
-            var result = DbAccessor.GetItems<FileModel>(Constants.TABLE_FILES, names);
-            return Task.FromResult(new DataResult<FileModel>(Name, result));
+            var result = DbAccessor.GetItem<FileInfoModel>(Constants.TABLE_FILES, name);
+            return Task.FromResult(new DataResult<FileInfoModel>(Name, new List<FileInfoModel>() { result }));
         }
     }
 }
