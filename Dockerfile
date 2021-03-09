@@ -13,7 +13,7 @@ RUN apt-get update \
         ffmpeg \
      && rm -rf /var/lib/apt/lists/*
 COPY --from=build /api/output .
-RUN mkdir {db_files,logs}
+RUN mkdir {storage,db_files,logs,tmp}
 
 ENTRYPOINT ["dotnet", "MyNAS.Site.dll"]
 EXPOSE 5000
