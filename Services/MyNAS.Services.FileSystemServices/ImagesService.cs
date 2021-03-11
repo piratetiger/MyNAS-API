@@ -106,8 +106,26 @@ namespace MyNAS.Services.FileSystemServices
         public async Task<DataResult<byte[]>> GetItemContents(string name)
         {
             var path = Path.Combine(Image_Path, name);
-            var bytes = await File.ReadAllBytesAsync(path);
-            var result = new DataResult<byte[]>(Name, new List<byte[]>() { bytes });
+            DataResult<byte[]> result = null;
+
+            try
+            {
+                var bytes = await File.ReadAllBytesAsync(path);
+                result = new DataResult<byte[]>(Name, new List<byte[]>() { bytes });
+            }
+            catch
+            {
+                result = new DataResult<byte[]>(Name, null);
+            }
+
+            if (result.First == null)
+            {
+                var next = Services.Next(this);
+                if (next != null)
+                {
+                    result = await next.GetItemContents(name);
+                }
+            }
 
             return result;
         }
@@ -115,8 +133,57 @@ namespace MyNAS.Services.FileSystemServices
         public async Task<DataResult<byte[]>> GetItemThumbContents(string name)
         {
             var path = Path.Combine(Image_Thumb_Path, name);
-            var bytes = await File.ReadAllBytesAsync(path);
-            var result = new DataResult<byte[]>(Name, new List<byte[]>() { bytes });
+            DataResult<byte[]> result = null;
+
+            try
+            {
+                var bytes = await File.ReadAllBytesAsync(path);
+                result = new DataResult<byte[]>(Name, new List<byte[]>() { bytes });
+            }
+            catch
+            {
+                result = new DataResult<byte[]>(Name, null);
+            }
+
+            if (result.First == null)
+            {
+                var next = Services.Next(this);
+                if (next != null)
+                {
+                    result = await next.GetItemThumbContents(name);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<DataResult<bool>> UpdateItemThumbContents(string name, byte[] contents)
+        {
+            var thumbPath = Path.Combine(Image_Thumb_Path, name);
+            var success = false;
+
+            try
+            {
+                if (contents != null)
+                {
+                    await File.WriteAllBytesAsync(thumbPath, contents);
+                }
+
+                success = true;
+            }
+            catch
+            {
+                success = false;
+            }
+            var result = new DataResult<bool>(Name, new List<bool>() { success });
+
+            var next = Services.Next(this);
+            if (next != null)
+            {
+                var nextResult = await next.UpdateItemThumbContents(name, contents);
+                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Source = $"{result.Source};{nextResult.Source}";
+            }
 
             return result;
         }

@@ -6,7 +6,7 @@ namespace MyNAS.Util
 {
     public static class ImageUtil
     {
-        public static Stream CreateThumbnail(string path)
+        public static byte[] CreateThumbnail(string path)
         {
             if (File.Exists(path))
             {
@@ -19,7 +19,7 @@ namespace MyNAS.Util
             return null;
         }
 
-        public static Stream CreateThumbnail(Stream stream)
+        public static byte[] CreateThumbnail(Stream stream)
         {
             MemoryStream result = new MemoryStream();
             Image image = Image.FromStream(stream, false);
@@ -27,7 +27,15 @@ namespace MyNAS.Util
             thumbImage.Save(result, ImageFormat.Jpeg);
             result.Position = 0;
 
-            return result;
+            return result.ToArray();
+        }
+
+        public static byte[] CreateThumbnail(byte[] contents)
+        {
+            using (var stream = new MemoryStream(contents))
+            {
+                return CreateThumbnail(stream);
+            }
         }
     }
 }

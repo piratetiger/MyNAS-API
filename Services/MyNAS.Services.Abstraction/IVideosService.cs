@@ -63,5 +63,12 @@ namespace MyNAS.Services.Abstraction
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.GetItemThumbContents(name);
         }
+
+        Task<DataResult<bool>> UpdateItemThumbContents(string name, byte[] contents)
+        {
+            var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
+            var next = Services.Next(this);
+            return next == null ? Task.FromResult(result) : next.UpdateItemThumbContents(name, contents);
+        }
     }
 }
