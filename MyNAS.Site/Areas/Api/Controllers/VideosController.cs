@@ -63,6 +63,15 @@ namespace MyNAS.Site.Areas.Api.Controllers
             if (thumb)
             {
                 var bytes = (await VideosService.GetItemThumbContents(name)).First;
+                if (bytes == null)
+                {
+                    bytes = (await VideosService.GetItemContents(name)).First;
+                    if (bytes != null)
+                    {
+                        bytes = await VideoUtil.CreateThumbnail(bytes);
+                        await VideosService.UpdateItemThumbContents(name, bytes);
+                    }
+                }
                 return File(bytes, "image/jpeg");
             }
             else
@@ -100,7 +109,6 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         await stream.ReadAsync(video.Contents, 0, video.Contents.Length);
 
                         stream.Seek(0, SeekOrigin.Begin);
-
                         video.ThumbContents = await VideoUtil.CreateThumbnail(stream);
                     }
                     videoList.Add(video);

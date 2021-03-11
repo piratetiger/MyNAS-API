@@ -64,6 +64,15 @@ namespace MyNAS.Site.Areas.Api.Controllers
             if (thumb)
             {
                 bytes = (await ImagesService.GetItemThumbContents(name)).First;
+                if (bytes == null)
+                {
+                    bytes = (await ImagesService.GetItemContents(name)).First;
+                    if (bytes != null)
+                    {
+                        bytes = ImageUtil.CreateThumbnail(bytes);
+                        await ImagesService.UpdateItemThumbContents(name, bytes);
+                    }
+                }
             }
             else
             {
@@ -101,11 +110,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
                         await stream.ReadAsync(image.Contents, 0, image.Contents.Length);
 
                         stream.Seek(0, SeekOrigin.Begin);
-                        using (var thumbStream = ImageUtil.CreateThumbnail(stream))
-                        {
-                            image.ThumbContents = new byte[thumbStream.Length];
-                            await thumbStream.ReadAsync(image.ThumbContents, 0, image.ThumbContents.Length);
-                        }
+                        image.ThumbContents = ImageUtil.CreateThumbnail(stream);
                     }
                     imageList.Add(image);
                 }
