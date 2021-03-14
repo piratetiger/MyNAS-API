@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace MyNAS.Model
@@ -28,7 +29,7 @@ namespace MyNAS.Model
         {
             get
             {
-                return Status == DataStatus.Success && First;
+                return Status == DataStatus.Success && !Data.Any(d => !d);
             }
         }
 
