@@ -71,7 +71,7 @@ namespace MyNAS.Services.FileSystemServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -122,7 +122,7 @@ namespace MyNAS.Services.FileSystemServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 

@@ -12,7 +12,7 @@ namespace MyNAS.Services.LiteDbServices
     {
         public Task<DataResult<VideoInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DbAccessor.SearchItems<VideoInfoModel>(Constants.TABLE_VIDEOS, req);
+            var result = DbAccessor.SearchItems<VideoInfoModel>(Constants.TABLE_VIDEOS, req)?.Select(m => NASInfoModel.FromModel<VideoInfoModel>(m));
             return Task.FromResult(new DataResult<VideoInfoModel>(Name, result));
         }
 
@@ -25,7 +25,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -41,7 +41,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -57,7 +57,7 @@ namespace MyNAS.Services.LiteDbServices
             }
             else
             {
-                var deleteItems = names.Select(n => new VideoInfoModel { FileName = n }).ToList();
+                var deleteItems = names.Select(n => new VideoInfoModel { FileName = n });
                 var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_VIDEOS, deleteItems);
                 result = new DataResult<bool>(Name, new List<bool> { deleteResult });
             }
@@ -66,7 +66,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.DeleteItems(names);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 

@@ -52,10 +52,10 @@ namespace MyNAS.Site.Areas.Api.Controllers
         {
             var user = HttpContext.GetUser();
             var dataResult = await FilesService.GetInfoList(req);
-            dataResult.Data = dataResult.Data.OrderByDescending(f => f.IsFolder).ToList();
+            dataResult.Data = dataResult.Data.OrderByDescending(f => f.IsFolder);
             if ((int)user.Role <= (int)UserRole.User)
             {
-                dataResult.Data = dataResult.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                dataResult.Data = dataResult.Data.Where(l => l.IsPublic || l.Owner == user.UserName);
             }
             return dataResult;
         }

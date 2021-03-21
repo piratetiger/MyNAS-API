@@ -12,7 +12,7 @@ namespace MyNAS.Services.LiteDbServices
     {
         public Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req)?.Select(m => NASInfoModel.FromModel<ImageInfoModel>(m))?.ToList();
+            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req)?.Select(m => NASInfoModel.FromModel<ImageInfoModel>(m));
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
@@ -25,7 +25,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -41,7 +41,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -57,7 +57,7 @@ namespace MyNAS.Services.LiteDbServices
             }
             else
             {
-                var deleteItems = names.Select(n => new ImageInfoModel { FileName = n }).ToList();
+                var deleteItems = names.Select(n => new ImageInfoModel { FileName = n });
                 var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
                 result = new DataResult<bool>(Name, new List<bool> { deleteResult });
             }
@@ -66,7 +66,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.DeleteItems(names);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -86,7 +86,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<ImageInfoModel>(Name, null));
             }
 
-            var result = DbAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names).ToList();
+            var result = DbAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names);
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
     }

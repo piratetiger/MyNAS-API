@@ -25,7 +25,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -41,7 +41,7 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
@@ -55,7 +55,7 @@ namespace MyNAS.Services.LiteDbServices
                 return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { false }));
             }
 
-            var deleteItems = names.Select(n => new FileInfoModel { KeyName = n }).ToList();
+            var deleteItems = names.Select(n => new FileInfoModel { KeyName = n });
             var result = DbAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }

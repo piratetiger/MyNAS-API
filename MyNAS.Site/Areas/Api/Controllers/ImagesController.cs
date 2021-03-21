@@ -51,7 +51,7 @@ namespace MyNAS.Site.Areas.Api.Controllers
             var list = await ImagesService.GetInfoList(req);
             if ((int)user.Role <= (int)UserRole.User)
             {
-                list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName).ToList();
+                list.Data = list.Data.Where(l => l.IsPublic || l.Owner == user.UserName);
             }
             return list;
         }

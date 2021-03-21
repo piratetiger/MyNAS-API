@@ -15,12 +15,12 @@ namespace MyNAS.Services.LiteDbServices.Helper
             _connectionString = connectionString;
         }
 
-        public List<T> GetAll<T>(string name) where T : IKeyNameModel
+        public IEnumerable<T> GetAll<T>(string name) where T : IKeyNameModel
         {
             using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
-                return collection.FindAll().ToList();
+                return collection.FindAll();
             }
         }
 
