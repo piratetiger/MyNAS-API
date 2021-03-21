@@ -6,6 +6,7 @@ namespace MyNAS.Model.Videos
     {
         [JsonIgnoreSerialization]
         public override long Id { get; set; }
+        public override string Type { get => "video"; }
         [JsonIgnoreSerialization]
         public override string KeyName
         {

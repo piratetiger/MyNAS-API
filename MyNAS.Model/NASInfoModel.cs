@@ -5,6 +5,7 @@ namespace MyNAS.Model
     public abstract class NASInfoModel : IKeyNameModel, IDateModel, IOwnerModel
     {
         public virtual long Id { get; set; }
+        public abstract string Type { get; }
         public virtual string KeyName { get; set; }
         public virtual DateTime Date { get; set; }
         public virtual string Owner { get; set; }
@@ -25,9 +26,5 @@ namespace MyNAS.Model
 
             return result;
         }
-    }
-
-    public class DefaultNASInfoModel : NASInfoModel
-    {
     }
 }

@@ -6,6 +6,7 @@ namespace MyNAS.Model.Images
     {
         [JsonIgnoreSerialization]
         public override long Id { get; set; }
+        public override string Type { get => "image"; }
         [JsonIgnoreSerialization]
         public override string KeyName
         {
