@@ -24,19 +24,18 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public List<T> SearchItems<T>(string name, IDateFilterRequest req) where T : IDateModel
+        public IEnumerable<T> SearchItems<T>(string name, IDateFilterRequest req) where T : IDateModel
         {
             using (var db = new LiteDatabase(_connectionString))
             {
                 var collection = db.GetCollection<T>(name);
                 return collection.Find(i => ((i.Date >= req.StartDate) && (i.Date <= req.EndDate.AddDays(1))) &&
                                       (i.Cate == req.Cate))
-                            .OrderByDescending(i => i.Date)
-                            .ToList();
+                            .OrderByDescending(i => i.Date);
             }
         }
 
-        public List<T> SearchItems<T>(string name, IOwnerFilterRequest req) where T : IOwnerModel
+        public IEnumerable<T> SearchItems<T>(string name, IOwnerFilterRequest req) where T : IOwnerModel
         {
             using (var db = new LiteDatabase(_connectionString))
             {
@@ -44,20 +43,18 @@ namespace MyNAS.Services.LiteDbServices.Helper
                 if (req.Owner == null || !req.Owner.Any())
                 {
                     return collection.Find(i => i.Cate == req.Cate)
-                                    .OrderBy(i => i.Owner)
-                                    .ToList();
+                                    .OrderBy(i => i.Owner);
                 }
                 else
                 {
                     return collection.Find(i => (req.Owner.Contains(i.Owner) &&
                                           (i.Cate == req.Cate)))
-                                .OrderBy(i => i.Owner)
-                                .ToList();
+                                .OrderBy(i => i.Owner);
                 }
             }
         }
 
-        public List<T> SearchItems<T>(string name, INASFilterRequest req) where T : NASInfoModel
+        public IEnumerable<T> SearchItems<T>(string name, INASFilterRequest req) where T : NASInfoModel
         {
             if (req.Owner == null || !req.Owner.Any())
             {
@@ -75,8 +72,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
                 return collection.Find(i => ((i.Date >= req.StartDate) && (i.Date <= req.EndDate.AddDays(1))) &&
                                             (req.Owner.Contains(i.Owner) &&
                                             (i.Cate == req.Cate)))
-                            .OrderByDescending(i => i.Date)
-                            .ToList();
+                            .OrderByDescending(i => i.Date);
             }
         }
 
@@ -262,7 +258,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public List<T> GetItems<T>(string name, IEnumerable<string> keyNames) where T : IKeyNameModel
+        public IEnumerable<T> GetItems<T>(string name, IEnumerable<string> keyNames) where T : IKeyNameModel
         {
             if (keyNames == null)
             {
@@ -273,7 +269,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
                 using (var db = new LiteDatabase(_connectionString))
                 {
                     var collection = db.GetCollection<T>(name);
-                    return collection.Find(i => keyNames.Contains(i.KeyName)).ToList();
+                    return collection.Find(i => keyNames.Contains(i.KeyName));
                 }
             }
             catch

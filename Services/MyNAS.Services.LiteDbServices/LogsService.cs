@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using MyNAS.Model;
 using MyNAS.Model.Logs;
@@ -26,13 +27,13 @@ namespace MyNAS.Services.LiteDbServices
 
         public Task<DataResult<AuditLogModel>> GetAuditLogList(GetListRequest req)
         {
-            var logs = AuditLogAccessor.SearchItems<AuditLogModel>(Constants.TABLE_LOG_AUDIT, req);
+            var logs = AuditLogAccessor.SearchItems<AuditLogModel>(Constants.TABLE_LOG_AUDIT, req).ToList();
             return Task.FromResult(new DataResult<AuditLogModel>(Name, logs));
         }
 
         public Task<DataResult<ErrorLogModel>> GetErrorLogList(GetListRequest req)
         {
-            var logs = ErrorLogAccessor.SearchItems<ErrorLogModel>(Constants.TABLE_LOG_ERROR, req);
+            var logs = ErrorLogAccessor.SearchItems<ErrorLogModel>(Constants.TABLE_LOG_ERROR, req).ToList();
             return Task.FromResult(new DataResult<ErrorLogModel>(Name, logs));
         }
     }

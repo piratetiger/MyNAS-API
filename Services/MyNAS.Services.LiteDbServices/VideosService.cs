@@ -32,7 +32,7 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<VideoModel> items)
         {
             var saveResult = DbAccessor.SaveItems(Constants.TABLE_VIDEOS, items.Select(i => NASInfoModel.FromModel<VideoInfoModel>(i)));
             var result = new DataResult<bool>(Name, new List<bool> { saveResult });
@@ -48,7 +48,7 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        public async Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             DataResult<bool> result = null;
             if (names == null)
@@ -73,13 +73,13 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IEnumerable<VideoInfoModel> items)
         {
             var result = DbAccessor.UpdateItems(Constants.TABLE_VIDEOS, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<VideoInfoModel>> GetInfoList(IList<string> names)
+        public Task<DataResult<VideoInfoModel>> GetInfoList(IEnumerable<string> names)
         {
             if (names == null)
             {

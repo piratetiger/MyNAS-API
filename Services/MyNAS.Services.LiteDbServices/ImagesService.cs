@@ -12,7 +12,7 @@ namespace MyNAS.Services.LiteDbServices
     {
         public Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req);
+            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req)?.Select(m => NASInfoModel.FromModel<ImageInfoModel>(m))?.ToList();
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
@@ -32,7 +32,7 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<ImageModel> items)
         {
             var saveResult = DbAccessor.SaveItems(Constants.TABLE_IMAGES, items.Select(i => NASInfoModel.FromModel<ImageInfoModel>(i)));
             var result = new DataResult<bool>(Name, new List<bool> { saveResult });
@@ -48,7 +48,7 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        public async Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             DataResult<bool> result = null;
             if (names == null)
@@ -73,20 +73,20 @@ namespace MyNAS.Services.LiteDbServices
             return result;
         }
 
-        public Task<DataResult<bool>> UpdateInfoList(IList<ImageInfoModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IEnumerable<ImageInfoModel> items)
         {
             var result = DbAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<ImageInfoModel>> GetInfoList(IList<string> names)
+        public Task<DataResult<ImageInfoModel>> GetInfoList(IEnumerable<string> names)
         {
             if (names == null)
             {
                 return Task.FromResult(new DataResult<ImageInfoModel>(Name, null));
             }
 
-            var result = DbAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names);
+            var result = DbAccessor.GetItems<ImageInfoModel>(Constants.TABLE_IMAGES, names).ToList();
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
     }

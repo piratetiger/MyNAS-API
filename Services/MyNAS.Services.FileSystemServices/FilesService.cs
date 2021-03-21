@@ -78,7 +78,7 @@ namespace MyNAS.Services.FileSystemServices
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(List<FileModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<FileModel> items)
         {
             var success = true;
 

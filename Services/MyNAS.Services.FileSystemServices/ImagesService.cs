@@ -65,7 +65,7 @@ namespace MyNAS.Services.FileSystemServices
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<ImageModel> items)
         {
             var success = true;
 
@@ -188,7 +188,7 @@ namespace MyNAS.Services.FileSystemServices
             return result;
         }
 
-        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        public async Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             var success = true;
 
