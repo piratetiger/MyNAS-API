@@ -22,28 +22,28 @@ namespace MyNAS.Services.Abstraction
             return next == null ? Task.FromResult(result) : next.SaveItem(item);
         }
 
-        Task<DataResult<bool>> SaveItems(IList<VideoModel> items)
+        Task<DataResult<bool>> SaveItems(IEnumerable<VideoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.SaveItems(items);
         }
 
-        Task<DataResult<bool>> DeleteItems(IList<string> names)
+        Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.DeleteItems(names);
         }
 
-        Task<DataResult<bool>> UpdateInfoList(IList<VideoInfoModel> items)
+        Task<DataResult<bool>> UpdateInfoList(IEnumerable<VideoInfoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.UpdateInfoList(items);
         }
 
-        Task<DataResult<VideoInfoModel>> GetInfoList(IList<string> names)
+        Task<DataResult<VideoInfoModel>> GetInfoList(IEnumerable<string> names)
         {
             var result = new DataResult<VideoInfoModel>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);

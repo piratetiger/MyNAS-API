@@ -12,7 +12,7 @@ namespace MyNAS.Services.LiteDbServices
     {
         public Task<DataResult<ImageInfoModel>> GetInfoList(GetListRequest req)
         {
-            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req);
+            var result = DbAccessor.SearchItems<ImageInfoModel>(Constants.TABLE_IMAGES, req)?.Select(m => NASInfoModel.FromModel<ImageInfoModel>(m));
             return Task.FromResult(new DataResult<ImageInfoModel>(Name, result));
         }
 
@@ -25,14 +25,14 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(IList<ImageModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<ImageModel> items)
         {
             var saveResult = DbAccessor.SaveItems(Constants.TABLE_IMAGES, items.Select(i => NASInfoModel.FromModel<ImageInfoModel>(i)));
             var result = new DataResult<bool>(Name, new List<bool> { saveResult });
@@ -41,14 +41,14 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
             return result;
         }
 
-        public async Task<DataResult<bool>> DeleteItems(IList<string> names)
+        public async Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             DataResult<bool> result = null;
             if (names == null)
@@ -57,7 +57,7 @@ namespace MyNAS.Services.LiteDbServices
             }
             else
             {
-                var deleteItems = names.Select(n => new ImageInfoModel { FileName = n }).ToList();
+                var deleteItems = names.Select(n => new ImageInfoModel { FileName = n });
                 var deleteResult = DbAccessor.DeleteItems(Constants.TABLE_IMAGES, deleteItems);
                 result = new DataResult<bool>(Name, new List<bool> { deleteResult });
             }
@@ -66,20 +66,20 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.DeleteItems(names);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
             return result;
         }
 
-        public Task<DataResult<bool>> UpdateInfoList(IList<ImageInfoModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IEnumerable<ImageInfoModel> items)
         {
             var result = DbAccessor.UpdateItems(Constants.TABLE_IMAGES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool> { result }));
         }
 
-        public Task<DataResult<ImageInfoModel>> GetInfoList(IList<string> names)
+        public Task<DataResult<ImageInfoModel>> GetInfoList(IEnumerable<string> names)
         {
             if (names == null)
             {

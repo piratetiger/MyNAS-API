@@ -7,7 +7,7 @@ namespace MyNAS.Model
     public class DataResult<T>
     {
         private string _source;
-        private IList<T> _data;
+        private IEnumerable<T> _data;
         private DataStatus _dataStatus;
         private string _message;
 
@@ -23,7 +23,7 @@ namespace MyNAS.Model
             }
         }
 
-        public IList<T> Data
+        public IEnumerable<T> Data
         {
             get
             {
@@ -71,22 +71,22 @@ namespace MyNAS.Model
             _source = source;
         }
 
-        public DataResult(string source, IList<T> data) : this(source)
+        public DataResult(string source, IEnumerable<T> data) : this(source)
         {
             Data = data;
         }
 
-        public DataResult(string source, IList<T> data, DataStatus status) : this(source, data)
+        public DataResult(string source, IEnumerable<T> data, DataStatus status) : this(source, data)
         {
             _dataStatus = status;
         }
 
-        public DataResult(string source, IList<T> data, string message) : this(source, data)
+        public DataResult(string source, IEnumerable<T> data, string message) : this(source, data)
         {
             _message = message;
         }
 
-        public DataResult(string source, IList<T> data, DataStatus status, string message) : this(source, data)
+        public DataResult(string source, IEnumerable<T> data, DataStatus status, string message) : this(source, data)
         {
             _dataStatus = status;
             _message = message;

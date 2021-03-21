@@ -88,11 +88,11 @@ namespace MyNAS.Site.Areas.Api.Controllers
             var users = await UserService.GetList();
             if (User.IsInRole(UserRole.Guest.ToString()))
             {
-                users.Data = users.Data.Where(u => u.KeyName == User.Identity.Name).ToList();
+                users.Data = users.Data.Where(u => u.KeyName == User.Identity.Name);
             }
             else if (User.IsInRole(UserRole.User.ToString()))
             {
-                users.Data = users.Data.Where(u => u.Role == UserRole.Guest || u.Role == UserRole.User).ToList();
+                users.Data = users.Data.Where(u => u.Role == UserRole.Guest || u.Role == UserRole.User);
             }
 
             return users;

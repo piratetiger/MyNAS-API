@@ -22,21 +22,21 @@ namespace MyNAS.Services.Abstraction
             return next == null ? Task.FromResult(result) : next.SaveItem(item);
         }
 
-        Task<DataResult<bool>> SaveItems(List<FileModel> items)
+        Task<DataResult<bool>> SaveItems(IEnumerable<FileModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.SaveItems(items);
         }
 
-        Task<DataResult<bool>> DeleteItems(List<string> names)
+        Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);
             return next == null ? Task.FromResult(result) : next.DeleteItems(names);
         }
 
-        Task<DataResult<bool>> UpdateInfoList(List<FileInfoModel> items)
+        Task<DataResult<bool>> UpdateInfoList(IEnumerable<FileInfoModel> items)
         {
             var result = new DataResult<bool>(Name, null, Constants.End_Of_Chain);
             var next = Services.Next(this);

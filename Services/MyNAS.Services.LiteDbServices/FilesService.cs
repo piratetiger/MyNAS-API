@@ -25,14 +25,14 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItem(item);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
             return result;
         }
 
-        public async Task<DataResult<bool>> SaveItems(List<FileModel> items)
+        public async Task<DataResult<bool>> SaveItems(IEnumerable<FileModel> items)
         {
             var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Select(i => NASInfoModel.FromModel<FileInfoModel>(i)));
             var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
@@ -41,26 +41,26 @@ namespace MyNAS.Services.LiteDbServices
             if (next != null)
             {
                 var nextResult = await next.SaveItems(items);
-                result.Data = result.Data.Concat(nextResult.Data).ToList();
+                result.Data = result.Data.Concat(nextResult.Data);
                 result.Source = $"{result.Source};{nextResult.Source}";
             }
 
             return result;
         }
 
-        public Task<DataResult<bool>> DeleteItems(List<string> names)
+        public Task<DataResult<bool>> DeleteItems(IEnumerable<string> names)
         {
             if (names == null)
             {
                 return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { false }));
             }
 
-            var deleteItems = names.Select(n => new FileInfoModel { KeyName = n }).ToList();
+            var deleteItems = names.Select(n => new FileInfoModel { KeyName = n });
             var result = DbAccessor.DeleteItems(Constants.TABLE_FILES, deleteItems);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
         }
 
-        public Task<DataResult<bool>> UpdateInfoList(List<FileInfoModel> items)
+        public Task<DataResult<bool>> UpdateInfoList(IEnumerable<FileInfoModel> items)
         {
             var result = DbAccessor.UpdateItems(Constants.TABLE_FILES, items);
             return Task.FromResult(new DataResult<bool>(Name, new List<bool>() { result }));
