@@ -57,7 +57,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public List<T> SearchItems<T>(string name, INASFilterRequest req) where T : INASModel
+        public List<T> SearchItems<T>(string name, INASFilterRequest req) where T : NASInfoModel
         {
             if (req.Owner == null || !req.Owner.Any())
             {
@@ -108,7 +108,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool SaveItems<T>(string name, IList<T> items) where T : IKeyNameModel
+        public bool SaveItems<T>(string name, IEnumerable<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -158,7 +158,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool DeleteItems<T>(string name, IList<T> items) where T : IKeyNameModel
+        public bool DeleteItems<T>(string name, IEnumerable<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -172,7 +172,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
                     var collection = db.GetCollection<T>(name);
                     var deleteKeys = items.Select(i => i.KeyName);
                     var record = collection.Delete(i => deleteKeys.Contains(i.KeyName));
-                    return record == items.Count;
+                    return record == items.Count();
                 }
             }
             catch
@@ -215,7 +215,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public bool UpdateItems<T>(string name, IList<T> items) where T : IKeyNameModel
+        public bool UpdateItems<T>(string name, IEnumerable<T> items) where T : IKeyNameModel
         {
             if (items == null)
             {
@@ -228,7 +228,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
                 {
                     var collection = db.GetCollection<T>(name);
                     var checkCount = collection.LongCount(i => items.Select(ii => ii.KeyName).Contains(i.KeyName));
-                    if (checkCount != items.Count)
+                    if (checkCount != items.Count())
                     {
                         return false;
                     }
@@ -262,7 +262,7 @@ namespace MyNAS.Services.LiteDbServices.Helper
             }
         }
 
-        public List<T> GetItems<T>(string name, IList<string> keyNames) where T : IKeyNameModel
+        public List<T> GetItems<T>(string name, IEnumerable<string> keyNames) where T : IKeyNameModel
         {
             if (keyNames == null)
             {

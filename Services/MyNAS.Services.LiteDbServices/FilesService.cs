@@ -18,7 +18,7 @@ namespace MyNAS.Services.LiteDbServices
 
         public async Task<DataResult<bool>> SaveItem(FileModel item)
         {
-            var saveResult = DbAccessor.SaveItem(Constants.TABLE_FILES, item as FileInfoModel);
+            var saveResult = DbAccessor.SaveItem(Constants.TABLE_FILES, NASInfoModel.FromModel<FileInfoModel>(item));
             var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
 
             var next = Services.Next(this);
@@ -34,7 +34,7 @@ namespace MyNAS.Services.LiteDbServices
 
         public async Task<DataResult<bool>> SaveItems(List<FileModel> items)
         {
-            var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Cast<FileInfoModel>().ToList());
+            var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Select(i => NASInfoModel.FromModel<FileInfoModel>(i)));
             var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
 
             var next = Services.Next(this);
