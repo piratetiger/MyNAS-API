@@ -18,7 +18,10 @@ namespace MyNAS.Services.LiteDbServices
 
         public async Task<DataResult<bool>> SaveItem(FileModel item)
         {
-            var saveResult = DbAccessor.SaveItem(Constants.TABLE_FILES, NASInfoModel.FromModel<FileInfoModel>(item));
+            var saveModel = NASInfoModel.FromModel<FileInfoModel>(item);
+            saveModel.PathName = item.PathName;
+            saveModel.IsFolder = item.IsFolder;
+            var saveResult = DbAccessor.SaveItem(Constants.TABLE_FILES, saveModel);
             var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
 
             var next = Services.Next(this);
@@ -34,7 +37,13 @@ namespace MyNAS.Services.LiteDbServices
 
         public async Task<DataResult<bool>> SaveItems(IEnumerable<FileModel> items)
         {
-            var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Select(i => NASInfoModel.FromModel<FileInfoModel>(i)));
+            var saveResult = DbAccessor.SaveItems(Constants.TABLE_FILES, items.Select(i =>
+            {
+                var saveModel = NASInfoModel.FromModel<FileInfoModel>(i);
+                saveModel.PathName = i.PathName;
+                saveModel.IsFolder = i.IsFolder;
+                return saveModel;
+            }));
             var result = new DataResult<bool>(Name, new List<bool>() { saveResult });
 
             var next = Services.Next(this);
